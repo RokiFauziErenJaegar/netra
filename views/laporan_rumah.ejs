@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <%- include('partials/head', { title }) %>
+  <style>
+    body { background: #f4f6f9; color: #222; }
+    .report-page { max-width: 1100px; margin: 24px auto; background: #fff; padding: 28px; box-shadow: 0 4px 14px rgba(0,0,0,0.08); }
+    .summary-box { border: 1px solid #dee2e6; border-radius: 8px; padding: 14px; height: 100%; }
+    @media print {
+      body { background: #fff; }
+      .report-page { margin: 0; max-width: none; box-shadow: none; padding: 0; }
+      .no-print { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+<div class="report-page">
+  <div class="d-flex justify-content-between align-items-start mb-4">
+    <div>
+      <h3 class="mb-1">Laporan Penggunaan Internet Rumah Ku</h3>
+      <div class="text-muted">Periode: <%= trafik.label %> | Dibuat: <%= new Date().toLocaleString('id-ID') %></div>
+      <div class="text-muted">Router MikroTik: <%= routerHost %></div>
+    </div>
+    <button class="btn btn-danger no-print" onclick="window.print()">Export PDF</button>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-md-3"><div class="summary-box"><small class="text-muted text-uppercase fw-bold">Estimasi Total</small><h4 class="mb-0"><%= trafik.ringkasan.total_pemakaian %></h4></div></div>
+    <div class="col-md-3"><div class="summary-box"><small class="text-muted text-uppercase fw-bold">Rata-rata Download</small><h4 class="mb-0"><%= trafik.ringkasan.avg_rx %></h4></div></div>
+    <div class="col-md-3"><div class="summary-box"><small class="text-muted text-uppercase fw-bold">Rata-rata Upload</small><h4 class="mb-0"><%= trafik.ringkasan.avg_tx %></h4></div></div>
+    <div class="col-md-3"><div class="summary-box"><small class="text-muted text-uppercase fw-bold">Puncak Trafik</small><h4 class="mb-0"><%= trafik.ringkasan.peak %></h4></div></div>
+  </div>
+
+  <table class="table table-bordered align-middle">
+    <thead class="table-light">
+      <tr><th>#</th><th>Interface</th><th>Rata-rata Download</th><th>Rata-rata Upload</th><th>Puncak Trafik</th><th>Estimasi Pemakaian</th><th>Sample</th></tr>
+    </thead>
+    <tbody>
+      <% if (!trafik.rows.length) { %>
+        <tr><td colspan="7" class="text-center text-muted py-4">Data penggunaan internet belum tersedia.</td></tr>
+      <% } %>
+      <% trafik.rows.forEach((row, i) => { %>
+        <tr>
+          <td><%= i + 1 %></td>
+          <td class="fw-bold"><%= row.interface_name %></td>
+          <td><%= fmtMbps(row.avg_rx) %></td>
+          <td><%= fmtMbps(row.avg_tx) %></td>
+          <td><%= fmtMbps(Math.max(Number(row.max_rx || 0), Number(row.max_tx || 0))) %></td>
+          <td><%= fmtBytes(row.estimasi_bytes) %></td>
+          <td><%= row.total_sample %> sampel</td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>
+<script>window.addEventListener('load', () => window.print());</script>
+</body>
+</html>

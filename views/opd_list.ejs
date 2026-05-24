@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <%- include('partials/head', { title }) %>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<div class="d-flex">
+  <%- include('partials/sidebar', { page }) %>
+  <div class="flex-grow-1">
+    <%- include('partials/navbar', { title, navIcon: 'fa-solid fa-users-gear' }) %>
+    <div class="container-fluid px-4">
+      <div class="row mb-4">
+        <div class="col-md-7">
+          <div class="card shadow-sm h-100">
+            <div class="card-body">
+              <h6 class="card-title text-muted text-uppercase">User Aktif per OPD</h6>
+              <div style="height: 320px;"><canvas id="opdChart"></canvas></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-5">
+          <div class="card shadow-sm h-100">
+            <div class="card-body">
+              <h6 class="card-title text-muted text-uppercase">Status Koneksi Router</h6>
+              <table class="table align-middle mb-0">
+                <thead class="table-light">
+                  <tr><th>OPD</th><th>Host</th><th>Status</th><th>Aksi</th></tr>
+                </thead>
+                <tbody id="routerStatusRows">
+                  <% routers.forEach(r => { %>
+                    <tr data-name="<%= r.name %>">
+                      <td class="fw-bold"><%= r.name %></td>
+                      <td><code><%= r.host %></code></td>
+                      <td><span class="badge bg-secondary status-cell">…</span></td>
+                      <td><a href="/opd/<%= encodeURIComponent(r.name) %>" class="btn btn-sm btn-outline-primary detail-btn disabled"><i class="fa-solid fa-eye"></i></a></td>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/static/js/opd_list.js"></script>
+</body>
+</html>

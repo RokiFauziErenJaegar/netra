@@ -1,0 +1,38 @@
+{
+  "name": "netra",
+  "version": "1.0.0",
+  "description": "Netra — Network Monitoring System for Diskominfo Pringsewu. Real-time MikroTik monitoring with sub-second polling, WebSocket push, and WhatsApp/Telegram alerting.",
+  "main": "src/server.js",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "migrate": "node src/db/migrate-cli.js"
+  },
+  "keywords": [
+    "mikrotik",
+    "monitoring",
+    "network",
+    "diskominfo",
+    "pringsewu",
+    "routeros",
+    "snmp",
+    "nms"
+  ],
+  "author": "Diskominfo Pringsewu",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.7.7",
+    "dotenv": "^16.4.5",
+    "ejs": "^3.1.10",
+    "express": "^4.21.1",
+    "mysql2": "^3.11.4",
+    "node-routeros": "^1.6.8",
+    "pino": "^9.5.0",
+    "pino-pretty": "^11.3.0",
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {}
+}

@@ -1,0 +1,31 @@
+<div class="sidebar p-3 sticky-top">
+  <div class="text-center mb-4 text-white border-bottom pb-3">
+    <i class="fa-solid fa-network-wired fa-2x mb-2"></i>
+    <h5 class="mb-0 fw-bold">NETRA</h5>
+    <small class="text-white-50">Network Monitoring System<br>Diskominfo Pringsewu</small>
+  </div>
+  <ul class="nav flex-column">
+    <li class="nav-item">
+      <a href="/" class="nav-link <%= page === 'dashboard' ? 'active' : '' %>">
+        <i class="fa-solid fa-gauge-high me-2"></i> Dashboard Monitoring
+      </a>
+    </li>
+    <li class="nav-item mt-2">
+      <a href="/rumah" class="nav-link <%= page === 'rumah' ? 'active' : '' %>">
+        <i class="fa-solid fa-house-signal me-2"></i> Dashboard Monitoring Rumah Ku
+      </a>
+    </li>
+    <li class="nav-item mt-2">
+      <a href="/opd" class="nav-link <%= page === 'opd' ? 'active' : '' %>">
+        <i class="fa-solid fa-users-gear me-2"></i> List OPD Active User
+      </a>
+    </li>
+  </ul>
+  <div class="position-absolute bottom-0 start-0 end-0 p-3 text-white-50 small">
+    <hr class="border-light opacity-25">
+    <div class="d-flex justify-content-between align-items-center">
+      <span>v1.0.0 Node</span>
+      <span id="wsBadge" class="badge bg-secondary"><i class="fa-solid fa-plug me-1"></i>WS</span>
+    </div>
+  </div>
+</div>
