@@ -3,6 +3,75 @@
 Catatan rilis untuk Netra. Mengikuti format [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/)
 dan [Semantic Versioning](https://semver.org/lang/id/).
 
+## [1.1.5] — 2026-05-25
+
+**Critical bugfix**: notifikasi WhatsApp tidak fire untuk interface yang sudah
+di-disable/disconnect saat pemulihan cooldown — bug warisan migrasi dari PHP
+yang baru terdeteksi setelah investigasi mendalam.
+
+### 🐛 Tiga Bug Ditemukan
+
+**Bug 1: Cooldown trap (kritis)**
+
+Skenario:
+1. User disable interface → notif fire → cooldown set 5 menit
+2. User enable interface (`disabled=0`) → `last_notified_disabled = null` di DB
+3. User re-disable **dalam 5 menit** → kondisi `disabled === 1 && old.disabled !== 1`
+   TRUE → notifyAll → **cooldown skip** → `last_notified_disabled` tetap null
+4. Tick berikutnya → state sama → kondisi state-transition FALSE → notif
+   **TIDAK PERNAH FIRE LAGI** meski cooldown sudah lewat
+
+**Bug 2: Mark cooldown sebelum send**
+
+`shouldSend()` set timestamp cooldown SEBELUM kepastian send sukses. Jadi
+bila Fonnte API timeout/error, cooldown sudah ter-set; tick berikutnya gagal
+retry dalam 5 menit.
+
+**Bug 3: PHP fallback hilang**
+
+Saat migrasi PHP → Node.js, fallback `$belum_notif_disabled` tidak ter-port.
+Inilah yang membuat kasus #1 di atas tidak ter-handle.
+
+### ✅ Fix
+
+**`notifier.js`** — pisah `canSend(key)` (cek-only, tanpa side-effect) dari
+`markSent(key)` (set timestamp). `notifyAll` hanya panggil `markSent` jika
+SETIDAKNYA satu channel berhasil kirim (`anyOk === true`).
+
+**`monitorRumah.js` & `monitorDiskominfo.js`** — kondisi trigger sekarang:
+```js
+const belumNotifDisabled = !old || !old.last_notified_disabled;
+const baruTerdisable = disabled === 1 &&
+  (!old || old.disabled !== 1 || belumNotifDisabled);
+```
+Fire bila:
+- State transition (enable → disable), **atau**
+- Belum pernah notif (`last_notified_disabled` NULL — bisa karena reset enable
+  atau cooldown-skipped sebelumnya)
+
+Logika identik untuk `down` (status Tidak Terhubung).
+
+### 🧪 Verifikasi
+
+Unit-test simulasi 9 skenario edge case: **9/9 PASS**.
+- Transition normal: fire ✓
+- Cooldown-trapped (last_notified NULL): fire ✓
+- State sudah dinotif: silent ✓
+- Interface baru di DB: fire jika down/disabled ✓
+
+### ⚙️ Upgrade dari v1.1.4
+```powershell
+git pull origin main
+pm2 restart netra
+```
+
+### 📋 Yang Tidak Berubah
+- Cooldown duration (`NOTIF_COOLDOWN_MS=300000`)
+- Cooldown reset saat enable (`disabled=0 → last_notified_disabled=NULL`)
+- PULIH (recovery) notif tetap fire pada transition `Tidak Terhubung → Terhubung`
+
+---
+
 ## [1.1.4] — 2026-05-25
 
 **Critical fix**: WebSocket badge stuck "Connecting" kuning (tidak pernah hijau)
@@ -281,6 +350,7 @@ DB compatible — kolom baru ditambah lewat auto-migration tanpa data loss.
 
 ---
 
+[1.1.5]: https://github.com/RokiFauziErenJaegar/netra/releases/tag/v1.1.5
 [1.1.4]: https://github.com/RokiFauziErenJaegar/netra/releases/tag/v1.1.4
 [1.1.3]: https://github.com/RokiFauziErenJaegar/netra/releases/tag/v1.1.3
 [1.1.2]: https://github.com/RokiFauziErenJaegar/netra/releases/tag/v1.1.2

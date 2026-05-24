@@ -105,21 +105,39 @@ class RumahMonitor {
         let newNotifDisabled = old ? old.last_notified_disabled : null;
         let newNotifDown = old ? old.last_notified_down : null;
 
-        if (disabled === 1 && (!old || old.disabled !== 1)) {
+        // --- Notif TERDISABLE ---
+        // Fire bila: state baru transition 0->1 ATAU sebelumnya belum pernah
+        // notif (last_notified_disabled NULL). Fallback kedua penting agar
+        // notif yang ter-skip karena cooldown bisa retry di tick berikutnya
+        // tanpa user perlu toggle enable-disable lagi.
+        const belumNotifDisabled = !old || !old.last_notified_disabled;
+        const baruTerdisable =
+          disabled === 1 &&
+          (!old || old.disabled !== 1 || belumNotifDisabled);
+
+        if (baruTerdisable) {
           const msg = buildRumahMsg('TERDISABLE', name, type, mac, this.client.host, waktu);
           const r = await notifyAll('PERINGATAN INTERFACE RUMAH', msg, {
             key: `rumah:${id}:disabled`
           });
-          if (r && !r.skipped) newNotifDisabled = waktu;
+          if (r && !r.skipped && r.anyOk) newNotifDisabled = waktu;
         }
         if (disabled === 0) newNotifDisabled = null;
 
-        if (status === 'Tidak Terhubung' && disabled === 0 &&
-            (!old || old.status_terakhir !== 'Tidak Terhubung')) {
+        // --- Notif TIDAK TERHUBUNG (down, bukan disabled) ---
+        const belumNotifDown = !old || !old.last_notified_down;
+        const baruDown =
+          status === 'Tidak Terhubung' &&
+          disabled === 0 &&
+          (!old || old.status_terakhir !== 'Tidak Terhubung' || belumNotifDown);
+
+        if (baruDown) {
           const msg = buildRumahMsg('TIDAK TERHUBUNG', name, type, mac, this.client.host, waktu);
           const r = await notifyAll('PERINGATAN INTERFACE RUMAH', msg, { key: `rumah:${id}:down` });
-          if (r && !r.skipped) newNotifDown = waktu;
+          if (r && !r.skipped && r.anyOk) newNotifDown = waktu;
         }
+
+        // --- Notif PULIH (recovery) ---
         if (status === 'Terhubung' && old && old.status_terakhir === 'Tidak Terhubung') {
           const msg = buildRumahMsg('PULIH (TERHUBUNG)', name, type, mac, this.client.host, waktu);
           await notifyAll('PEMULIHAN INTERFACE RUMAH', msg, { key: `rumah:${id}:down:recover` });

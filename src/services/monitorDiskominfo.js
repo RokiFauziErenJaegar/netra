@@ -105,21 +105,35 @@ class DiskominfoMonitor {
         let newNotifDisabled = old ? old.last_notified_disabled : null;
         let newNotifDown = old ? old.last_notified_down : null;
 
-        // INTERFACE BARU DI-DISABLE
-        if (disabled === 1 && (!old || old.disabled !== 1)) {
+        // INTERFACE TERDISABLE — fire bila transition 0->1 ATAU belum pernah
+        // notif (last_notified_disabled NULL). Fallback kedua agar notif
+        // yang ter-skip karena cooldown dapat retry tick berikutnya.
+        const belumNotifDisabled = !old || !old.last_notified_disabled;
+        const baruTerdisable =
+          disabled === 1 &&
+          (!old || old.disabled !== 1 || belumNotifDisabled);
+
+        if (baruTerdisable) {
           const msg = buildAlert('TERDISABLE', name, type, mac, this.client.host, waktu);
           const res = await notifyAll('PERINGATAN INTERFACE DISKOMINFO', msg, { key: notifKeyDisabled });
-          if (res && !res.skipped) newNotifDisabled = waktu;
+          if (res && !res.skipped && res.anyOk) newNotifDisabled = waktu;
         }
         if (disabled === 0) newNotifDisabled = null;
 
-        // INTERFACE BARU DOWN (running=0 tapi tidak di-disable)
-        if (status === 'Down' && disabled === 0 && (!old || old.status_terakhir !== 'Down')) {
+        // INTERFACE DOWN (running=0 tapi tidak di-disable)
+        const belumNotifDown = !old || !old.last_notified_down;
+        const baruDown =
+          status === 'Down' &&
+          disabled === 0 &&
+          (!old || old.status_terakhir !== 'Down' || belumNotifDown);
+
+        if (baruDown) {
           const msg = buildAlert('TIDAK TERHUBUNG', name, type, mac, this.client.host, waktu);
           const res = await notifyAll('PERINGATAN INTERFACE DISKOMINFO', msg, { key: notifKeyDown });
-          if (res && !res.skipped) newNotifDown = waktu;
+          if (res && !res.skipped && res.anyOk) newNotifDown = waktu;
         }
-        // RECOVERY: jika sebelumnya Down lalu sekarang Up
+
+        // RECOVERY
         if (status === 'Up' && old && old.status_terakhir === 'Down') {
           const msg = buildAlert('PULIH (UP)', name, type, mac, this.client.host, waktu);
           await notifyAll('PEMULIHAN INTERFACE DISKOMINFO', msg, { key: `${notifKeyDown}:recover` });
