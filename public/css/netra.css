@@ -599,10 +599,32 @@ p { margin: 0 0 1em; }
 .fs-sm { font-size: 0.85rem; }
 .fs-xs { font-size: 0.75rem; }
 
-.flash-update { animation: flash 800ms var(--ease); }
+.flash-update {
+  animation: flash 900ms var(--ease);
+  border-radius: var(--radius-sm);
+}
 @keyframes flash {
-  0% { background-color: var(--warning-bg); }
-  100% { background-color: transparent; }
+  0%   { background-color: var(--accent-soft); box-shadow: 0 0 0 4px var(--accent-soft); }
+  40%  { background-color: var(--accent-soft); box-shadow: 0 0 0 4px var(--accent-soft); }
+  100% { background-color: transparent; box-shadow: 0 0 0 0 transparent; }
+}
+
+/* Live heartbeat — agar dot di topbar terlihat "berdenyut" terus */
+.dot--live {
+  position: relative;
+}
+.dot--live::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  background: var(--success);
+  opacity: 0.4;
+  animation: heartbeat 2s ease-out infinite;
+}
+@keyframes heartbeat {
+  0%   { transform: scale(0.6); opacity: 0.7; }
+  100% { transform: scale(2.2); opacity: 0; }
 }
 
 /* -------- 19. Print ----------------------------------------------------- */

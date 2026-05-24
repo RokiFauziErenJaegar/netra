@@ -4,7 +4,7 @@
 >
 > Dinas Komunikasi dan Informatika Kabupaten Pringsewu
 
-![version](https://img.shields.io/badge/version-1.1.1-blue)
+![version](https://img.shields.io/badge/version-1.1.2-blue)
 ![node](https://img.shields.io/badge/node-%E2%89%A518-43853d)
 ![license](https://img.shields.io/badge/license-MIT-green)
 ![status](https://img.shields.io/badge/status-production-success)
@@ -453,6 +453,7 @@ Ubah `PORT=3001` (atau angka lain) di `.env`.
 
 | Versi | Tanggal | Highlight |
 |---|---|---|
+| [v1.1.2](CHANGELOG.md#112--2026-05-24) | 2026-05-24 | ⚡ Live ticker + heartbeat + flash animation + default poll 2s (rasa benar-benar realtime) |
 | [v1.1.1](CHANGELOG.md#111--2026-05-24) | 2026-05-24 | 🐛 Cache-busting asset + Cache-Control headers (fix CSS basi setelah deploy) |
 | [v1.1.0](CHANGELOG.md#110--2026-05-24) | 2026-05-24 | 🎨 Frontend redesign total (custom design system, dark mode, responsif penuh) |
 | [v1.0.0](CHANGELOG.md#100--2026-05-24) | 2026-05-24 | 🚀 Rilis awal — migrasi dari PHP native ke Node.js |

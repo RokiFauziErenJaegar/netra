@@ -97,13 +97,13 @@
       return;
     }
 
-    document.getElementById('totalInterface').textContent = snap.summary.total;
-    document.getElementById('totalTerhubung').textContent = snap.summary.terhubung;
-    document.getElementById('totalTidakTerhubung').textContent = snap.summary.tidak_terhubung;
-    document.getElementById('totalDhcp').textContent = snap.dhcpSummary.total;
-    document.getElementById('totalDhcpAktif').textContent = snap.dhcpSummary.aktif;
-    document.getElementById('totalDhcpTidakAktif').textContent = snap.dhcpSummary.tidak_aktif;
-    document.getElementById('waktuUpdate').textContent = snap.time;
+    NETRA.setText('totalInterface', snap.summary.total);
+    NETRA.setText('totalTerhubung', snap.summary.terhubung);
+    NETRA.setText('totalTidakTerhubung', snap.summary.tidak_terhubung);
+    NETRA.setText('totalDhcp', snap.dhcpSummary.total);
+    NETRA.setText('totalDhcpAktif', snap.dhcpSummary.aktif);
+    NETRA.setText('totalDhcpTidakAktif', snap.dhcpSummary.tidak_aktif);
+    NETRA.setText('waktuUpdate', snap.time);
 
     document.getElementById('interfaceRows').innerHTML = snap.interfaces && snap.interfaces.length
       ? snap.interfaces.map(renderIfRow).join('')
@@ -115,6 +115,8 @@
 
     pesan.className = 'alert alert--success';
     pesan.innerHTML = '<i class="fa-solid fa-circle-check"></i><div>Total <strong>' + snap.summary.total + '</strong> interface, <strong>' + snap.dhcpSummary.total + '</strong> DHCP lease · Update: ' + snap.time + '</div>';
+
+    NETRA.markUpdate();
   }
 
   async function reloadTrafik(periode) {

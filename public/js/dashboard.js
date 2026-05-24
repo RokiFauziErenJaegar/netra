@@ -31,10 +31,10 @@
       return;
     }
     var s = snap.summary || { total: 0, up: 0, down: 0 };
-    document.getElementById('totalInterface').textContent = s.total;
-    document.getElementById('totalUp').textContent = s.up;
-    document.getElementById('totalDown').textContent = s.down;
-    document.getElementById('waktuUpdate').textContent = snap.time;
+    NETRA.setText('totalInterface', s.total);
+    NETRA.setText('totalUp', s.up);
+    NETRA.setText('totalDown', s.down);
+    NETRA.setText('waktuUpdate', snap.time);
 
     var tbody = document.getElementById('interfaceRows');
     if (snap.interfaces && snap.interfaces.length) {
@@ -46,6 +46,8 @@
     var pesan = document.getElementById('pesanDashboard');
     pesan.className = 'alert alert--success';
     pesan.innerHTML = '<i class="fa-solid fa-circle-check"></i><div>Berhasil membaca <strong>' + s.total + '</strong> interface MikroTik Diskominfo · Terakhir update: ' + snap.time + '</div>';
+
+    NETRA.markUpdate();
   }
 
   fetch('/api/dashboard/snapshot')

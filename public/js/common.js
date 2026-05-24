@@ -25,6 +25,44 @@
       .replace(/'/g, '&#39;');
   };
 
+  // ---- Live ticker (relative "Xs lalu") ----------------------------------
+  NETRA.markUpdate = function () {
+    window.__netraLastUpdate = Date.now();
+    var el = document.getElementById('waktuSinceUpdate');
+    if (el) {
+      el.textContent = 'baru saja';
+      el.classList.remove('flash-update');
+      void el.offsetWidth; // restart animation
+      el.classList.add('flash-update');
+    }
+  };
+
+  function tickLiveLabel() {
+    if (!window.__netraLastUpdate) return;
+    var el = document.getElementById('waktuSinceUpdate');
+    if (!el) return;
+    var s = Math.round((Date.now() - window.__netraLastUpdate) / 1000);
+    if (s <= 1) el.textContent = 'baru saja';
+    else if (s < 60) el.textContent = s + ' detik lalu';
+    else if (s < 3600) el.textContent = Math.floor(s / 60) + ' menit lalu';
+    else el.textContent = Math.floor(s / 3600) + ' jam lalu';
+  }
+  setInterval(tickLiveLabel, 500);
+
+  // ---- setText with flash-on-change --------------------------------------
+  // Update DOM text only if value berubah, lalu flash animasi singkat agar
+  // mata user langsung tertarik ke value yang baru.
+  NETRA.setText = function (elOrId, value) {
+    var el = typeof elOrId === 'string' ? document.getElementById(elOrId) : elOrId;
+    if (!el) return;
+    var str = value == null ? '' : String(value);
+    if (el.textContent === str) return;
+    el.textContent = str;
+    el.classList.remove('flash-update');
+    void el.offsetWidth;
+    el.classList.add('flash-update');
+  };
+
   // ---- Mobile drawer -----------------------------------------------------
   function initDrawer() {
     var btn = document.getElementById('menuBtn');

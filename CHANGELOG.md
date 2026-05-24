@@ -3,6 +3,44 @@
 Catatan rilis untuk Netra. Mengikuti format [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/)
 dan [Semantic Versioning](https://semver.org/lang/id/).
 
+## [1.1.2] — 2026-05-24
+
+UX patch: dashboard sekarang **terasa benar-benar live**, bukan hanya
+"realtime di belakang layar". Tidak ada perubahan backend logic — hanya
+penambahan visual cue dan penurunan default interval.
+
+### ✨ Ditambahkan
+- **Live ticker** "X detik lalu" di topbar, update tiap 500ms client-side.
+  Selalu terlihat berjalan walaupun belum ada broadcast baru.
+- **Heartbeat ring** pada dot live di topbar — pulsing hijau 2 detik
+  terus-menerus, sinyal visual bahwa UI hidup.
+- **Flash highlight** saat angka di stat-card berubah:
+  background biru muda 900ms + soft glow ring, mata user otomatis
+  tertarik ke kolom yang baru update.
+- `NETRA.setText(el, val)` & `NETRA.markUpdate()` helper di common.js.
+- [docs/REALTIME.md](docs/REALTIME.md) — panduan lengkap arsitektur
+  realtime, verifikasi via DevTools, troubleshoot Cloudflare Tunnel.
+
+### 🔄 Diubah
+- **Default poll interval**: 5000ms → **2000ms** (sweet spot responsif vs
+  beban router). `.env.example` & `.env` lokal sudah ter-update.
+- README highlight bagian frontend menambahkan fitur live ticker.
+
+### 🐛 Diperbaiki
+- Persepsi "tidak realtime" — sebelumnya angka diam 5 detik tanpa visual
+  feedback antar update. Sekarang minimal heartbeat + ticker selalu
+  bergerak, dan setiap angka yang berubah disorot.
+
+### ⚙️ Upgrade dari v1.1.1
+```powershell
+git pull origin main
+pm2 restart netra
+```
+`Ctrl + Shift + R` di browser pertama kali (atau `?v=1.1.2` otomatis
+membatalkan cache).
+
+---
+
 ## [1.1.1] — 2026-05-24
 
 Patch release: **cache-busting asset** + Cache-Control headers yang benar.
@@ -160,6 +198,7 @@ DB compatible — kolom baru ditambah lewat auto-migration tanpa data loss.
 
 ---
 
+[1.1.2]: https://github.com/RokiFauziErenJaegar/netra/releases/tag/v1.1.2
 [1.1.1]: https://github.com/RokiFauziErenJaegar/netra/releases/tag/v1.1.1
 [1.1.0]: https://github.com/RokiFauziErenJaegar/netra/releases/tag/v1.1
 [1.0.0]: https://github.com/RokiFauziErenJaegar/netra/releases/tag/v1.0

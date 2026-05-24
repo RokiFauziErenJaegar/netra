@@ -7,9 +7,10 @@
     <span class="topbar__title-text"><%= title %></span>
   </h1>
   <div class="topbar__meta">
-    <span class="topbar__chip">
-      <i class="fa-regular fa-clock"></i>
-      <span id="waktuUpdate"><%= new Date().toLocaleString('id-ID') %></span>
+    <span class="topbar__chip" title="Waktu update terakhir">
+      <span class="dot dot--live" aria-hidden="true"></span>
+      <span id="waktuSinceUpdate" class="is-keep">menunggu…</span>
+      <span class="text-soft" id="waktuUpdate" style="margin-left: 4px;"><%= new Date().toLocaleString('id-ID') %></span>
     </span>
     <button class="topbar__theme-toggle" id="themeBtn" aria-label="Ubah tema" type="button">
       <i class="fa-solid fa-moon"></i>
