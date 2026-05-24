@@ -3,6 +3,45 @@
 Catatan rilis untuk Netra. Mengikuti format [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/)
 dan [Semantic Versioning](https://semver.org/lang/id/).
 
+## [1.1.4] — 2026-05-25
+
+**Critical fix**: WebSocket badge stuck "Connecting" kuning (tidak pernah hijau)
+karena script execution order yang salah. Backend WS sebenarnya sudah jalan
+sempurna — bug murni di client-side script loading.
+
+### 🐛 Diperbaiki
+
+**WebSocket tidak pernah connect dari browser**:
+- `common.js` di `<head>` pakai `defer` → run setelah DOM parse selesai
+- `dashboard.js` (dan page scripts lain) di akhir `<body>` **tanpa** `defer`
+  → run langsung saat parser sampai ke tag-nya
+- Akibatnya: `dashboard.js` jalan DULUAN saat `NETRA` namespace belum
+  didefinisikan (common.js masih ditunda) → `TypeError: NETRA.connectWs is
+  not a function` → JS execution stop → WS tidak pernah connect.
+
+**Fix**: tambah `defer` di SEMUA script tag (`dashboard.js`,
+`dashboard_rumah.js`, `detail.js`, `opd_list.js`, `opd_detail.js`).
+Dengan semua deferred, browser menjaga **source order**: common.js (head)
+jalan dulu, lalu page script (body).
+
+### Verifikasi
+Setelah upgrade, badge sidebar pojok kiri bawah akan jadi:
+- 🟡 "Connecting" sebentar (< 1 detik)
+- 🟢 **"Live"** hijau saat WS handshake sukses
+
+Bila masih kuning > 2 detik:
+1. F12 → Console — cek apakah ada error JS
+2. F12 → Network → filter WS — lihat status `ws?topic=dashboard`
+
+### ⚙️ Upgrade dari v1.1.3
+```powershell
+git pull origin main
+pm2 restart netra
+```
+`Ctrl+Shift+R` di browser untuk muat HTML+JS terbaru.
+
+---
+
 ## [1.1.3] — 2026-05-25
 
 Bugfix table layout + DHCP bandwidth tracking yang sebelumnya tidak akurat.
@@ -242,6 +281,7 @@ DB compatible — kolom baru ditambah lewat auto-migration tanpa data loss.
 
 ---
 
+[1.1.4]: https://github.com/RokiFauziErenJaegar/netra/releases/tag/v1.1.4
 [1.1.3]: https://github.com/RokiFauziErenJaegar/netra/releases/tag/v1.1.3
 [1.1.2]: https://github.com/RokiFauziErenJaegar/netra/releases/tag/v1.1.2
 [1.1.1]: https://github.com/RokiFauziErenJaegar/netra/releases/tag/v1.1.1
