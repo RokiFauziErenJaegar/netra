@@ -3,6 +3,46 @@
 Catatan rilis untuk Netra. Mengikuti format [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/)
 dan [Semantic Versioning](https://semver.org/lang/id/).
 
+## [1.1.1] — 2026-05-24
+
+Patch release: **cache-busting asset** + Cache-Control headers yang benar.
+Mengatasi masalah CSS lama nyangkut di browser/CDN setelah update versi
+(termasuk di belakang Cloudflare Tunnel/Proxy).
+
+### ✨ Ditambahkan
+- **Asset version query string** otomatis di semua CSS & JS:
+  `/static/css/netra.css?v=1.1.1`. Saat versi naik di `package.json`, URL
+  asset ikut berubah → browser & CDN auto-fetch ulang. Tidak perlu hard
+  refresh manual setelah deploy.
+- Helper view `asset(path)` yang menambahkan `?v=` otomatis.
+- `assetV` ter-expose ke semua template (dipakai di sidebar untuk label
+  versi yang selalu sinkron dengan `package.json`).
+
+### 🔄 Diubah
+- **Cache-Control headers**:
+  - HTML responses → `no-cache, no-store, must-revalidate` (selalu fresh,
+    agar URL asset terbaru ke-fetch).
+  - Static assets (`/static/*`) → `public, max-age=31536000, immutable`
+    (cache 1 tahun, aman karena URL berubah saat versi naik).
+- Asset URL di semua view: `/static/...` → `asset('...')` helper.
+
+### 🐛 Diperbaiki
+- **Cache CSS basi di Cloudflare/browser** setelah upgrade dari v1.0 → v1.1.
+  Sebelum v1.1.1, browser/CDN cache static asset 7 hari tanpa cache-busting,
+  jadi setelah deploy versi baru user melihat campuran asset lama + HTML
+  baru → layout berantakan. Sekarang teratasi secara permanen.
+
+### ⚙️ Upgrade dari v1.1.0
+```powershell
+git pull origin main
+pm2 restart netra
+```
+**Hanya satu kali** Anda perlu `Ctrl + Shift + R` di browser setelah deploy
+v1.1.1 ini. Setelah itu update versi berikutnya tidak akan butuh manual
+refresh lagi.
+
+---
+
 ## [1.1.0] — 2026-05-24
 
 Versi ini berfokus pada **redesign frontend total**: minimal, modern, dan responsif
@@ -120,5 +160,6 @@ DB compatible — kolom baru ditambah lewat auto-migration tanpa data loss.
 
 ---
 
+[1.1.1]: https://github.com/RokiFauziErenJaegar/netra/releases/tag/v1.1.1
 [1.1.0]: https://github.com/RokiFauziErenJaegar/netra/releases/tag/v1.1
 [1.0.0]: https://github.com/RokiFauziErenJaegar/netra/releases/tag/v1.0

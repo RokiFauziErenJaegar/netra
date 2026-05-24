@@ -1,6 +1,6 @@
 {
   "name": "netra",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Netra — Network Monitoring System for Diskominfo Pringsewu. Real-time MikroTik monitoring with sub-second polling, WebSocket push, and WhatsApp/Telegram alerting.",
   "main": "src/server.js",
   "engines": {
