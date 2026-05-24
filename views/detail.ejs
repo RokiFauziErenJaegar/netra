@@ -2,35 +2,47 @@
 <html lang="id">
 <head>
   <%- include('partials/head', { title }) %>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </head>
 <body>
-<div class="d-flex">
+<div class="app">
   <%- include('partials/sidebar', { page }) %>
-  <div class="flex-grow-1">
+  <div class="main">
     <%- include('partials/navbar', { title, navIcon: 'fa-solid fa-chart-line' }) %>
-    <div class="container-fluid px-4">
-      <a href="/" class="btn btn-sm btn-outline-secondary mb-3"><i class="fa-solid fa-arrow-left me-1"></i> Kembali</a>
-      <div class="card shadow-sm mb-4">
-        <div class="card-body">
-          <h4 class="mb-1"><%= opd.nama_opd %></h4>
-          <div class="text-muted small mb-3">
-            IP: <code><%= opd.ip_address %></code> &nbsp;|&nbsp;
-            Interface: <code><%= opd.interface_name || '-' %></code> &nbsp;|&nbsp;
-            MAC: <code><%= opd.mac_address || '-' %></code> &nbsp;|&nbsp;
-            Status terakhir: <strong><%= opd.status_terakhir %></strong>
+    <div class="content">
+
+      <a href="/" class="btn btn--ghost btn--sm" style="margin-bottom: var(--space-4);">
+        <i class="fa-solid fa-arrow-left"></i> Kembali ke Dashboard
+      </a>
+
+      <div class="card">
+        <div class="card__head">
+          <div>
+            <h3 style="margin: 0;"><%= opd.nama_opd %></h3>
+            <div class="muted fs-sm" style="margin-top: 4px;">
+              <code><%= opd.ip_address %></code> ·
+              Interface <code><%= opd.interface_name || '-' %></code> ·
+              MAC <code><%= opd.mac_address || '-' %></code>
+            </div>
           </div>
-          <div style="height: 360px;">
-            <canvas id="trafficChart"></canvas>
+          <% if (opd.status_terakhir === 'Up') { %>
+            <span class="badge badge--success"><i class="fa-solid fa-check"></i> Up</span>
+          <% } else { %>
+            <span class="badge badge--danger"><i class="fa-solid fa-xmark"></i> Down</span>
+          <% } %>
+        </div>
+        <div class="card__body">
+          <div class="chart-box"><canvas id="trafficChart"></canvas></div>
+          <div id="emptyState" class="table__empty" style="display:none;">
+            <i class="fa-solid fa-hourglass-half"></i> Belum ada data traffic untuk hari ini.
           </div>
-          <div id="emptyState" class="text-center text-muted py-4 d-none">Belum ada data traffic untuk hari ini.</div>
         </div>
       </div>
+
     </div>
   </div>
 </div>
 <script>window.__OPD_ID__ = <%= opd.id_opd %>;</script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="/static/js/detail.js"></script>
 </body>
 </html>

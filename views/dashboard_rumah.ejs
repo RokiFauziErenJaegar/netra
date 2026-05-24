@@ -2,211 +2,246 @@
 <html lang="id">
 <head>
   <%- include('partials/head', { title }) %>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </head>
 <body>
-<div class="d-flex">
+<div class="app">
   <%- include('partials/sidebar', { page }) %>
-  <div class="flex-grow-1">
+  <div class="main">
     <%- include('partials/navbar', { title, navIcon: 'fa-solid fa-house-signal' }) %>
+    <div class="content">
 
-    <div class="container-fluid px-4">
-      <div id="pesanDashboard" class="alert alert-info shadow-sm">Menunggu update pertama…</div>
+      <div id="pesanDashboard" class="alert alert--info">
+        <i class="fa-solid fa-circle-info"></i>
+        <div>Menunggu update pertama…</div>
+      </div>
 
-      <div class="row mb-4">
-        <div class="col-md-4">
-          <div class="card card-stats bg-primary text-white h-100">
-            <div class="card-body d-flex justify-content-between align-items-center">
-              <div>
-                <h6 class="card-title text-uppercase mb-0">Total Interface</h6>
-                <h2 id="totalInterface" class="mt-2 mb-0"><%= snapshot && snapshot.summary ? snapshot.summary.total : 0 %></h2>
-              </div>
-              <i class="fa-solid fa-ethernet icon-lg"></i>
-            </div>
-          </div>
+      <div class="stats-grid">
+        <div class="stat-card" data-tone="primary">
+          <div class="stat-card__icon"><i class="fa-solid fa-ethernet"></i></div>
+          <div class="stat-card__label">Total Interface</div>
+          <div class="stat-card__value" id="totalInterface"><%= snapshot && snapshot.summary ? snapshot.summary.total : 0 %></div>
+          <div class="stat-card__hint"><i class="fa-solid fa-server"></i> Router <%= routerHost %></div>
         </div>
-        <div class="col-md-4">
-          <div class="card card-stats bg-success text-white h-100">
-            <div class="card-body d-flex justify-content-between align-items-center">
-              <div>
-                <h6 class="card-title text-uppercase mb-0">Terhubung</h6>
-                <h2 id="totalTerhubung" class="mt-2 mb-0"><%= snapshot && snapshot.summary ? snapshot.summary.terhubung : 0 %></h2>
-              </div>
-              <i class="fa-solid fa-circle-check icon-lg"></i>
-            </div>
-          </div>
+        <div class="stat-card" data-tone="success">
+          <div class="stat-card__icon"><i class="fa-solid fa-circle-check"></i></div>
+          <div class="stat-card__label">Terhubung</div>
+          <div class="stat-card__value" id="totalTerhubung"><%= snapshot && snapshot.summary ? snapshot.summary.terhubung : 0 %></div>
+          <div class="stat-card__hint"><span class="dot dot--live"></span> Aktif</div>
         </div>
-        <div class="col-md-4">
-          <div class="card card-stats bg-danger text-white h-100">
-            <div class="card-body d-flex justify-content-between align-items-center">
-              <div>
-                <h6 class="card-title text-uppercase mb-0">Tidak Terhubung</h6>
-                <h2 id="totalTidakTerhubung" class="mt-2 mb-0"><%= snapshot && snapshot.summary ? snapshot.summary.tidak_terhubung : 0 %></h2>
-              </div>
-              <i class="fa-solid fa-circle-xmark icon-lg"></i>
-            </div>
+        <div class="stat-card" data-tone="danger">
+          <div class="stat-card__icon"><i class="fa-solid fa-circle-xmark"></i></div>
+          <div class="stat-card__label">Tidak Terhubung</div>
+          <div class="stat-card__value" id="totalTidakTerhubung"><%= snapshot && snapshot.summary ? snapshot.summary.tidak_terhubung : 0 %></div>
+          <div class="stat-card__hint"><span class="dot dot--down"></span> Down/Disabled</div>
+        </div>
+        <div class="stat-card" data-tone="info">
+          <div class="stat-card__icon"><i class="fa-solid fa-address-card"></i></div>
+          <div class="stat-card__label">DHCP Leases</div>
+          <div class="stat-card__value" id="totalDhcp"><%= snapshot && snapshot.dhcpSummary ? snapshot.dhcpSummary.total : 0 %></div>
+          <div class="stat-card__hint">
+            <span id="totalDhcpAktif" class="text-success"><%= snapshot && snapshot.dhcpSummary ? snapshot.dhcpSummary.aktif : 0 %></span> aktif ·
+            <span id="totalDhcpTidakAktif"><%= snapshot && snapshot.dhcpSummary ? snapshot.dhcpSummary.tidak_aktif : 0 %></span> idle
           </div>
         </div>
       </div>
 
-      <!-- DHCP -->
-      <div class="table-wrapper mb-5">
-        <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center mb-3">
+      <!-- DHCP Section -->
+      <section class="section">
+        <div class="section__head">
           <div>
-            <h5 class="mb-0"><i class="fa-solid fa-address-card me-2"></i>DHCP Leases Rumah</h5>
-            <small class="text-muted">Perangkat yang mendapat IP dari DHCP Server MikroTik</small>
-          </div>
-          <div class="d-flex gap-2">
-            <span class="badge bg-primary rounded-pill px-3 py-2">Total: <span id="totalDhcp"><%= snapshot && snapshot.dhcpSummary ? snapshot.dhcpSummary.total : 0 %></span></span>
-            <span class="badge bg-success rounded-pill px-3 py-2">Aktif: <span id="totalDhcpAktif"><%= snapshot && snapshot.dhcpSummary ? snapshot.dhcpSummary.aktif : 0 %></span></span>
-            <span class="badge bg-secondary rounded-pill px-3 py-2">Tidak Aktif: <span id="totalDhcpTidakAktif"><%= snapshot && snapshot.dhcpSummary ? snapshot.dhcpSummary.tidak_aktif : 0 %></span></span>
+            <h2 class="section__title"><i class="fa-solid fa-address-card"></i> DHCP Leases Rumah</h2>
+            <div class="section__subtitle">Daftar perangkat yang mendapat IP dari DHCP Server</div>
           </div>
         </div>
-        <div class="table-responsive">
-          <table class="table table-hover align-middle">
-            <thead class="table-light">
-              <tr>
-                <th>#</th><th>Perangkat</th><th>IP Address</th><th>Total Bandwidth</th><th>Lease</th><th>Status</th>
-              </tr>
-            </thead>
-            <tbody id="dhcpRows">
-              <% if (snapshot && snapshot.leases && snapshot.leases.length) { %>
-                <% snapshot.leases.forEach((row, i) => { %>
-                  <tr>
-                    <td class="text-muted"><%= i + 1 %></td>
-                    <td class="fw-bold"><%= row.host_name || 'Tanpa nama' %><br><small class="text-muted fw-normal">ID: <%= row.routeros_id %></small></td>
-                    <td class="text-nowrap"><code><%= row.ip_address || '-' %></code></td>
-                    <td class="fw-bold text-primary text-nowrap"><%= fmtBytes(row.total_usage_bytes) %></td>
-                    <td class="text-muted small">Last: <%= row.last_seen || '-' %><br>Expires: <%= row.expires_after || '-' %></td>
-                    <td class="text-nowrap">
-                      <% if (String(row.lease_status).toLowerCase() === 'bound') { %>
-                        <span class="badge bg-success rounded-pill px-3 py-2"><i class="fa-solid fa-wifi me-1"></i> AKTIF</span>
-                      <% } else { %>
-                        <span class="badge bg-secondary rounded-pill px-3 py-2"><%= String(row.lease_status || '').toUpperCase() %></span>
-                      <% } %>
-                    </td>
-                  </tr>
-                <% }) %>
-              <% } else { %>
-                <tr><td colspan="6" class="text-center text-muted py-4">Belum ada DHCP lease.</td></tr>
-              <% } %>
-            </tbody>
-          </table>
+        <div class="table-wrap">
+          <div class="table-scroll">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Perangkat</th>
+                  <th>IP Address</th>
+                  <th class="text-right">Total Bandwidth</th>
+                  <th>Lease Info</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="dhcpRows">
+                <% if (snapshot && snapshot.leases && snapshot.leases.length) { %>
+                  <% snapshot.leases.forEach((row, i) => { %>
+                    <tr>
+                      <td class="muted"><%= i + 1 %></td>
+                      <td>
+                        <div class="strong"><%= row.host_name || 'Tanpa nama' %></div>
+                        <div class="muted">ID: <%= row.routeros_id %></div>
+                      </td>
+                      <td><code><%= row.ip_address || '-' %></code></td>
+                      <td class="text-right num strong text-accent"><%= fmtBytes(row.total_usage_bytes) %></td>
+                      <td class="muted fs-xs">
+                        <div>Last seen: <%= row.last_seen || '-' %></div>
+                        <div>Expires: <%= row.expires_after || '-' %></div>
+                      </td>
+                      <td>
+                        <% if (String(row.lease_status).toLowerCase() === 'bound') { %>
+                          <span class="badge badge--success"><i class="fa-solid fa-wifi"></i> Aktif</span>
+                        <% } else { %>
+                          <span class="badge badge--neutral"><%= String(row.lease_status || '').toUpperCase() %></span>
+                        <% } %>
+                      </td>
+                    </tr>
+                  <% }) %>
+                <% } else { %>
+                  <tr><td colspan="6" class="table__empty">Belum ada DHCP lease.</td></tr>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
+      </section>
 
-      <!-- Interface -->
-      <div class="table-wrapper mb-5">
-        <div class="d-flex justify-content-between align-items-center mb-3">
+      <!-- Interface Section -->
+      <section class="section">
+        <div class="section__head">
           <div>
-            <h5 class="mb-0"><i class="fa-solid fa-server me-2"></i>Status Interface MikroTik Rumah</h5>
-            <small class="text-muted">Router: <%= routerHost %> | Interval poll: <%= cfg.poll.rumahMs %>ms</small>
+            <h2 class="section__title"><i class="fa-solid fa-server"></i> Status Interface MikroTik Rumah</h2>
+            <div class="section__subtitle">Router <%= routerHost %> · Interval poll <%= cfg.poll.rumahMs %>ms</div>
           </div>
         </div>
-        <div class="table-responsive">
-          <table class="table table-hover align-middle">
-            <thead class="table-light">
-              <tr>
-                <th>#</th><th>Interface</th><th>Tipe</th><th>MAC</th>
-                <th>Download</th><th>Upload</th><th>Running</th><th>Disabled</th>
-                <th>Cek Terakhir</th><th>Status</th>
-              </tr>
-            </thead>
-            <tbody id="interfaceRows">
-              <% if (snapshot && snapshot.interfaces && snapshot.interfaces.length) { %>
-                <% snapshot.interfaces.forEach((row, i) => { %>
-                  <tr>
-                    <td><%= i + 1 %></td>
-                    <td class="fw-bold"><%= row.interface_name %><br><small class="text-muted fw-normal">ID: <%= row.routeros_id %></small></td>
-                    <td><%= row.type || '-' %></td>
-                    <td><code><%= row.mac_address || '-' %></code></td>
-                    <td class="fw-bold text-primary"><%= fmtMbps(row.last_rx_bps) %></td>
-                    <td class="fw-bold text-info"><%= fmtMbps(row.last_tx_bps) %></td>
-                    <td><%= Number(row.running) === 1 ? '<span class="text-success fw-bold">Ya</span>' : '<span class="text-danger fw-bold">Tidak</span>' %></td>
-                    <td><%= Number(row.disabled) === 1 ? '<span class="text-danger fw-bold">Ya</span>' : '<span class="text-success fw-bold">Tidak</span>' %></td>
-                    <td class="text-muted small"><%= row.last_update %></td>
-                    <td>
-                      <% if (row.status_terakhir === 'Terhubung') { %>
-                        <span class="badge bg-success rounded-pill px-3 py-2"><i class="fa-solid fa-check me-1"></i> TERHUBUNG</span>
-                      <% } else { %>
-                        <span class="badge bg-danger rounded-pill px-3 py-2"><i class="fa-solid fa-xmark me-1"></i> TIDAK TERHUBUNG</span>
-                      <% } %>
-                    </td>
-                  </tr>
-                <% }) %>
-              <% } else { %>
-                <tr><td colspan="10" class="text-center text-muted py-4">Belum ada data interface.</td></tr>
-              <% } %>
-            </tbody>
-          </table>
+        <div class="table-wrap">
+          <div class="table-scroll">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Interface</th>
+                  <th>Tipe</th>
+                  <th>MAC</th>
+                  <th class="text-right">Download</th>
+                  <th class="text-right">Upload</th>
+                  <th>Status</th>
+                  <th>Cek Terakhir</th>
+                </tr>
+              </thead>
+              <tbody id="interfaceRows">
+                <% if (snapshot && snapshot.interfaces && snapshot.interfaces.length) { %>
+                  <% snapshot.interfaces.forEach((row, i) => { %>
+                    <tr>
+                      <td class="muted"><%= i + 1 %></td>
+                      <td>
+                        <div class="strong"><%= row.interface_name %></div>
+                        <div class="muted">ID: <%= row.routeros_id %></div>
+                      </td>
+                      <td class="muted"><%= row.type || '-' %></td>
+                      <td><code><%= row.mac_address || '-' %></code></td>
+                      <td class="text-right num strong text-accent"><%= fmtMbps(row.last_rx_bps) %></td>
+                      <td class="text-right num strong text-accent"><%= fmtMbps(row.last_tx_bps) %></td>
+                      <td>
+                        <% if (row.status_terakhir === 'Terhubung') { %>
+                          <span class="badge badge--success"><i class="fa-solid fa-check"></i> Terhubung</span>
+                        <% } else { %>
+                          <span class="badge badge--danger"><i class="fa-solid fa-xmark"></i> Tidak Terhubung</span>
+                        <% } %>
+                      </td>
+                      <td class="muted fs-xs"><%= row.last_update %></td>
+                    </tr>
+                  <% }) %>
+                <% } else { %>
+                  <tr><td colspan="8" class="table__empty">Belum ada data interface.</td></tr>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
+      </section>
 
-      <!-- Traffic Chart & Periode -->
-      <div class="table-wrapper mb-5">
-        <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center mb-3">
+      <!-- Traffic Analytics -->
+      <section class="section">
+        <div class="section__head">
           <div>
-            <h5 class="mb-0"><i class="fa-solid fa-chart-line me-2"></i>Penggunaan Internet Interface</h5>
-            <small class="text-muted">Periode: <span id="labelPeriode"><%= trafik.label %></span></small>
+            <h2 class="section__title"><i class="fa-solid fa-chart-line"></i> Penggunaan Internet Interface</h2>
+            <div class="section__subtitle">Periode: <span id="labelPeriode"><%= trafik.label %></span></div>
           </div>
-          <div class="d-flex flex-wrap gap-2">
-            <select id="filterPeriode" class="form-select form-select-sm" style="width: 150px;">
+          <div class="section__actions">
+            <select id="filterPeriode" class="select">
               <option value="harian"   <%= periode === 'harian'   ? 'selected' : '' %>>Harian</option>
               <option value="mingguan" <%= periode === 'mingguan' ? 'selected' : '' %>>Mingguan</option>
               <option value="bulanan"  <%= periode === 'bulanan'  ? 'selected' : '' %>>Bulanan</option>
             </select>
-            <a id="btnExportPdf" href="/rumah/laporan?periode=<%= periode %>" target="_blank" class="btn btn-danger btn-sm fw-bold shadow-sm">
-              <i class="fa-solid fa-file-pdf me-1"></i> Export PDF
+            <a id="btnExportPdf" href="/rumah/laporan?periode=<%= periode %>" target="_blank" class="btn btn--danger btn--sm">
+              <i class="fa-solid fa-file-pdf"></i> Export PDF
             </a>
           </div>
         </div>
 
-        <div class="row mb-4">
-          <div class="col-md-3"><div class="border rounded p-3 h-100 bg-light"><small class="text-muted text-uppercase fw-bold">Estimasi Total</small><h4 id="trTotal" class="mb-0 mt-1"><%= trafik.ringkasan.total_pemakaian %></h4></div></div>
-          <div class="col-md-3"><div class="border rounded p-3 h-100 bg-light"><small class="text-muted text-uppercase fw-bold">Rata-rata Download</small><h4 id="trAvgRx" class="mb-0 mt-1"><%= trafik.ringkasan.avg_rx %></h4></div></div>
-          <div class="col-md-3"><div class="border rounded p-3 h-100 bg-light"><small class="text-muted text-uppercase fw-bold">Rata-rata Upload</small><h4 id="trAvgTx" class="mb-0 mt-1"><%= trafik.ringkasan.avg_tx %></h4></div></div>
-          <div class="col-md-3"><div class="border rounded p-3 h-100 bg-light"><small class="text-muted text-uppercase fw-bold">Puncak Trafik</small><h4 id="trPeak" class="mb-0 mt-1"><%= trafik.ringkasan.peak %></h4></div></div>
+        <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
+          <div class="card"><div class="card__body">
+            <div class="stat-card__label">Estimasi Total</div>
+            <div class="stat-card__value" id="trTotal" style="font-size: 1.4rem;"><%= trafik.ringkasan.total_pemakaian %></div>
+          </div></div>
+          <div class="card"><div class="card__body">
+            <div class="stat-card__label">Rata-rata Download</div>
+            <div class="stat-card__value" id="trAvgRx" style="font-size: 1.4rem;"><%= trafik.ringkasan.avg_rx %></div>
+          </div></div>
+          <div class="card"><div class="card__body">
+            <div class="stat-card__label">Rata-rata Upload</div>
+            <div class="stat-card__value" id="trAvgTx" style="font-size: 1.4rem;"><%= trafik.ringkasan.avg_tx %></div>
+          </div></div>
+          <div class="card"><div class="card__body">
+            <div class="stat-card__label">Puncak Trafik</div>
+            <div class="stat-card__value" id="trPeak" style="font-size: 1.4rem;"><%= trafik.ringkasan.peak %></div>
+          </div></div>
         </div>
 
-        <div class="mb-4" style="height: 320px;"><canvas id="trafficChart"></canvas></div>
-
-        <div class="table-responsive">
-          <table class="table table-hover align-middle">
-            <thead class="table-light">
-              <tr>
-                <th>#</th><th>Interface</th><th>Rata-rata Download</th><th>Rata-rata Upload</th>
-                <th>Puncak Trafik</th><th>Estimasi Pemakaian</th><th>Sample</th>
-              </tr>
-            </thead>
-            <tbody id="trafficRows">
-              <% if (trafik.rows.length) { %>
-                <% trafik.rows.forEach((row, i) => { %>
-                  <tr>
-                    <td><%= i + 1 %></td>
-                    <td class="fw-bold"><%= row.interface_name %></td>
-                    <td><%= fmtMbps(row.avg_rx) %></td>
-                    <td><%= fmtMbps(row.avg_tx) %></td>
-                    <td><%= fmtMbps(Math.max(Number(row.max_rx || 0), Number(row.max_tx || 0))) %></td>
-                    <td><%= fmtBytes(row.estimasi_bytes) %></td>
-                    <td class="text-muted small"><%= row.total_sample %> sampel</td>
-                  </tr>
-                <% }) %>
-              <% } else { %>
-                <tr><td colspan="7" class="text-center text-muted py-4">Belum ada data penggunaan.</td></tr>
-              <% } %>
-            </tbody>
-          </table>
+        <div class="card" style="margin-top: var(--space-4);">
+          <div class="card__body">
+            <div class="chart-box"><canvas id="trafficChart"></canvas></div>
+          </div>
         </div>
-      </div>
+
+        <div class="table-wrap" style="margin-top: var(--space-4);">
+          <div class="table-scroll">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Interface</th>
+                  <th class="text-right">Rata-rata Download</th>
+                  <th class="text-right">Rata-rata Upload</th>
+                  <th class="text-right">Puncak Trafik</th>
+                  <th class="text-right">Estimasi Pemakaian</th>
+                  <th class="text-right">Sample</th>
+                </tr>
+              </thead>
+              <tbody id="trafficRows">
+                <% if (trafik.rows.length) { %>
+                  <% trafik.rows.forEach((row, i) => { %>
+                    <tr>
+                      <td class="muted"><%= i + 1 %></td>
+                      <td class="strong"><%= row.interface_name %></td>
+                      <td class="text-right num"><%= fmtMbps(row.avg_rx) %></td>
+                      <td class="text-right num"><%= fmtMbps(row.avg_tx) %></td>
+                      <td class="text-right num"><%= fmtMbps(Math.max(Number(row.max_rx || 0), Number(row.max_tx || 0))) %></td>
+                      <td class="text-right num strong"><%= fmtBytes(row.estimasi_bytes) %></td>
+                      <td class="text-right muted fs-xs"><%= row.total_sample %> sampel</td>
+                    </tr>
+                  <% }) %>
+                <% } else { %>
+                  <tr><td colspan="7" class="table__empty">Belum ada data penggunaan untuk periode ini.</td></tr>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
     </div>
   </div>
 </div>
-
 <script>
   window.__INITIAL_TRAFFIC__ = <%- JSON.stringify(trafik.rows) %>;
   window.__INITIAL_PERIODE__ = <%- JSON.stringify(periode) %>;
 </script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="/static/js/dashboard_rumah.js"></script>
 </body>
 </html>

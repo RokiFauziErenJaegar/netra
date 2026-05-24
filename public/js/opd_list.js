@@ -1,10 +1,19 @@
 (function () {
   var chart = null;
 
+  function chartTheme() {
+    var dark = document.documentElement.getAttribute('data-theme') === 'dark';
+    return {
+      grid: dark ? 'rgba(255,255,255,0.06)' : 'rgba(15,23,42,0.06)',
+      text: dark ? '#cbd5e1' : '#64748b'
+    };
+  }
+
   function renderChart(rows) {
     var labels = rows.map(function (r) { return r.name; });
     var hot = rows.map(function (r) { return r.hotspot; });
     var ppp = rows.map(function (r) { return r.ppp; });
+    var t = chartTheme();
     if (chart) {
       chart.data.labels = labels;
       chart.data.datasets[0].data = hot;
@@ -18,11 +27,18 @@
       data: {
         labels: labels,
         datasets: [
-          { label: 'Hotspot', data: hot, backgroundColor: 'rgba(13,110,253,0.75)' },
-          { label: 'PPP/VPN', data: ppp, backgroundColor: 'rgba(255,193,7,0.75)' }
+          { label: 'Hotspot', data: hot, backgroundColor: 'rgba(37,99,235,0.85)', borderRadius: 6 },
+          { label: 'PPP/VPN', data: ppp, backgroundColor: 'rgba(217,119,6,0.85)', borderRadius: 6 }
         ]
       },
-      options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { labels: { color: t.text, font: { family: 'Inter' } } } },
+        scales: {
+          y: { beginAtZero: true, grid: { color: t.grid }, ticks: { color: t.text } },
+          x: { grid: { display: false }, ticks: { color: t.text } }
+        }
+      }
     });
   }
 
@@ -33,13 +49,13 @@
       var status = tr.querySelector('.status-cell');
       var btn = tr.querySelector('.detail-btn');
       if (r.online) {
-        status.className = 'badge bg-success status-cell';
-        status.textContent = 'Online (' + (r.hotspot + r.ppp) + ' user)';
-        btn.classList.remove('disabled');
+        status.className = 'badge badge--success status-cell';
+        status.innerHTML = '<i class="fa-solid fa-check"></i> Online · ' + (r.hotspot + r.ppp) + ' user';
+        btn.classList.remove('is-disabled');
       } else {
-        status.className = 'badge bg-danger status-cell';
-        status.textContent = 'Offline';
-        btn.classList.add('disabled');
+        status.className = 'badge badge--danger status-cell';
+        status.innerHTML = '<i class="fa-solid fa-xmark"></i> Offline';
+        btn.classList.add('is-disabled');
       }
     });
   }

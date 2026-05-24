@@ -4,10 +4,19 @@
 >
 > Dinas Komunikasi dan Informatika Kabupaten Pringsewu
 
+![version](https://img.shields.io/badge/version-1.1.0-blue)
+![node](https://img.shields.io/badge/node-%E2%89%A518-43853d)
+![license](https://img.shields.io/badge/license-MIT-green)
+![status](https://img.shields.io/badge/status-production-success)
+
 NETRA adalah aplikasi monitoring jaringan real-time untuk perangkat MikroTik
 RouterOS. Dibangun ulang dari aplikasi PHP native ke arsitektur Node.js modern
 dengan polling sub-detik, push notifikasi via WebSocket, dan alerting via
 WhatsApp (Fonnte) & Telegram tanpa bergantung pada browser yang terbuka.
+
+> 🎨 **v1.1.0** — Frontend di-redesign total: minimal, modern, full-responsif,
+> dengan dark mode. Lihat [CHANGELOG.md](CHANGELOG.md) atau
+> [docs/UI_REDESIGN.md](docs/UI_REDESIGN.md) untuk detail.
 
 ---
 
@@ -29,6 +38,15 @@ WhatsApp (Fonnte) & Telegram tanpa bergantung pada browser yang terbuka.
 ---
 
 ## Fitur Utama
+
+### Frontend (v1.1.0)
+- **Custom design system** tanpa Bootstrap, ~21 KB CSS vs 220 KB Bootstrap
+  (saving 90%). Lihat [docs/UI_REDESIGN.md](docs/UI_REDESIGN.md).
+- **Mobile-first responsif** dengan drawer sidebar di layar kecil.
+- **Dark mode** dengan toggle persisten (`localStorage`), no flicker.
+- **Inter font** + tabular-numerals untuk angka real-time tanpa "jumping".
+- **Micro-interactions**: hover-lift cards, status pulse, smooth transitions.
+- **WCAG AA contrast**, focus rings, ARIA labels.
 
 ### Monitoring Real-Time (sub-detik)
 - **Single poller per router** — hanya satu proses background yang query
@@ -430,6 +448,15 @@ Ubah `PORT=3001` (atau angka lain) di `.env`.
 - Komentar dalam Bahasa Indonesia (sesuai konteks instansi)
 
 ---
+
+## Riwayat Versi
+
+| Versi | Tanggal | Highlight |
+|---|---|---|
+| [v1.1.0](CHANGELOG.md#110--2026-05-24) | 2026-05-24 | 🎨 Frontend redesign total (custom design system, dark mode, responsif penuh) |
+| [v1.0.0](CHANGELOG.md#100--2026-05-24) | 2026-05-24 | 🚀 Rilis awal — migrasi dari PHP native ke Node.js |
+
+Lihat semua rilis di [GitHub Releases](https://github.com/RokiFauziErenJaegar/netra/releases).
 
 ## Lisensi
 

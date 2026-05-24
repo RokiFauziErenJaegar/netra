@@ -2,50 +2,62 @@
 <html lang="id">
 <head>
   <%- include('partials/head', { title }) %>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </head>
 <body>
-<div class="d-flex">
+<div class="app">
   <%- include('partials/sidebar', { page }) %>
-  <div class="flex-grow-1">
+  <div class="main">
     <%- include('partials/navbar', { title, navIcon: 'fa-solid fa-users-gear' }) %>
-    <div class="container-fluid px-4">
-      <div class="row mb-4">
-        <div class="col-md-7">
-          <div class="card shadow-sm h-100">
-            <div class="card-body">
-              <h6 class="card-title text-muted text-uppercase">User Aktif per OPD</h6>
-              <div style="height: 320px;"><canvas id="opdChart"></canvas></div>
+    <div class="content">
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card__head">
+            <div>
+              <h3 style="margin:0;"><i class="fa-solid fa-chart-column text-accent"></i> User Aktif per OPD</h3>
+              <div class="muted fs-sm" style="margin-top: 4px;">Hotspot vs PPP / VPN</div>
             </div>
           </div>
+          <div class="card__body">
+            <div class="chart-box"><canvas id="opdChart"></canvas></div>
+          </div>
         </div>
-        <div class="col-md-5">
-          <div class="card shadow-sm h-100">
-            <div class="card-body">
-              <h6 class="card-title text-muted text-uppercase">Status Koneksi Router</h6>
-              <table class="table align-middle mb-0">
-                <thead class="table-light">
-                  <tr><th>OPD</th><th>Host</th><th>Status</th><th>Aksi</th></tr>
-                </thead>
-                <tbody id="routerStatusRows">
-                  <% routers.forEach(r => { %>
-                    <tr data-name="<%= r.name %>">
-                      <td class="fw-bold"><%= r.name %></td>
-                      <td><code><%= r.host %></code></td>
-                      <td><span class="badge bg-secondary status-cell">…</span></td>
-                      <td><a href="/opd/<%= encodeURIComponent(r.name) %>" class="btn btn-sm btn-outline-primary detail-btn disabled"><i class="fa-solid fa-eye"></i></a></td>
-                    </tr>
-                  <% }) %>
-                </tbody>
-              </table>
+
+        <div class="card">
+          <div class="card__head">
+            <div>
+              <h3 style="margin:0;"><i class="fa-solid fa-network-wired text-accent"></i> Status Koneksi Router</h3>
+              <div class="muted fs-sm" style="margin-top: 4px;"><%= routers.length %> router OPD</div>
             </div>
+          </div>
+          <div class="table-scroll">
+            <table class="table">
+              <thead>
+                <tr><th>OPD</th><th>Host</th><th>Status</th><th></th></tr>
+              </thead>
+              <tbody id="routerStatusRows">
+                <% routers.forEach(r => { %>
+                  <tr data-name="<%= r.name %>">
+                    <td class="strong"><%= r.name %></td>
+                    <td><code><%= r.host %></code></td>
+                    <td><span class="badge badge--neutral status-cell">…</span></td>
+                    <td>
+                      <a href="/opd/<%= encodeURIComponent(r.name) %>" class="btn btn--ghost btn--sm detail-btn is-disabled">
+                        <i class="fa-solid fa-eye"></i> Detail
+                      </a>
+                    </td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
+
     </div>
   </div>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="/static/js/opd_list.js"></script>
 </body>
 </html>

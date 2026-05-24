@@ -1,12 +1,21 @@
 (function () {
   var chart = null;
 
+  function chartTheme() {
+    var dark = document.documentElement.getAttribute('data-theme') === 'dark';
+    return {
+      grid: dark ? 'rgba(255,255,255,0.06)' : 'rgba(15,23,42,0.06)',
+      text: dark ? '#cbd5e1' : '#64748b'
+    };
+  }
+
   function bpsToMbps(v) { return Number(v || 0) / 1000000; }
 
   function renderChart(rows) {
     var labels = rows.map(function (r) { return r.interface_name; });
-    var rx = rows.map(function (r) { return bpsToMbps(r.avg_rx).toFixed(2); });
-    var tx = rows.map(function (r) { return bpsToMbps(r.avg_tx).toFixed(2); });
+    var rx = rows.map(function (r) { return +bpsToMbps(r.avg_rx).toFixed(2); });
+    var tx = rows.map(function (r) { return +bpsToMbps(r.avg_tx).toFixed(2); });
+    var t = chartTheme();
 
     if (chart) {
       chart.data.labels = labels;
@@ -21,65 +30,70 @@
       data: {
         labels: labels,
         datasets: [
-          { label: 'Download avg (Mbps)', data: rx, backgroundColor: 'rgba(13,110,253,0.75)' },
-          { label: 'Upload avg (Mbps)',   data: tx, backgroundColor: 'rgba(32,201,151,0.75)' }
+          { label: 'Download avg (Mbps)', data: rx, backgroundColor: 'rgba(37,99,235,0.85)', borderRadius: 6, borderSkipped: false },
+          { label: 'Upload avg (Mbps)',   data: tx, backgroundColor: 'rgba(5,150,105,0.85)',  borderRadius: 6, borderSkipped: false }
         ]
       },
       options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: { y: { beginAtZero: true, title: { display: true, text: 'Mbps' } } }
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { labels: { color: t.text, font: { family: 'Inter' } } } },
+        scales: {
+          y: { beginAtZero: true, grid: { color: t.grid }, ticks: { color: t.text, font: { family: 'Inter' } } },
+          x: { grid: { display: false }, ticks: { color: t.text, font: { family: 'Inter' } } }
+        }
       }
     });
   }
 
   function renderIfRow(row, i) {
-    var running = Number(row.running) === 1 ? '<span class="text-success fw-bold">Ya</span>' : '<span class="text-danger fw-bold">Tidak</span>';
-    var disabled = Number(row.disabled) === 1 ? '<span class="text-danger fw-bold">Ya</span>' : '<span class="text-success fw-bold">Tidak</span>';
     var status = row.status_terakhir === 'Terhubung'
-      ? '<span class="badge bg-success rounded-pill px-3 py-2"><i class="fa-solid fa-check me-1"></i> TERHUBUNG</span>'
-      : '<span class="badge bg-danger rounded-pill px-3 py-2"><i class="fa-solid fa-xmark me-1"></i> TIDAK TERHUBUNG</span>';
+      ? '<span class="badge badge--success"><i class="fa-solid fa-check"></i> Terhubung</span>'
+      : '<span class="badge badge--danger"><i class="fa-solid fa-xmark"></i> Tidak Terhubung</span>';
     return (
       '<tr>' +
-        '<td>' + (i + 1) + '</td>' +
-        '<td class="fw-bold">' + NETRA.escapeHtml(row.interface_name) +
-          '<br><small class="text-muted fw-normal">ID: ' + NETRA.escapeHtml(row.routeros_id) + '</small></td>' +
-        '<td>' + NETRA.escapeHtml(row.type || '-') + '</td>' +
+        '<td class="muted">' + (i + 1) + '</td>' +
+        '<td>' +
+          '<div class="strong">' + NETRA.escapeHtml(row.interface_name) + '</div>' +
+          '<div class="muted">ID: ' + NETRA.escapeHtml(row.routeros_id) + '</div>' +
+        '</td>' +
+        '<td class="muted">' + NETRA.escapeHtml(row.type || '-') + '</td>' +
         '<td><code>' + NETRA.escapeHtml(row.mac_address || '-') + '</code></td>' +
-        '<td class="fw-bold text-primary">' + NETRA.fmtMbps(row.last_rx_bps) + '</td>' +
-        '<td class="fw-bold text-info">' + NETRA.fmtMbps(row.last_tx_bps) + '</td>' +
-        '<td>' + running + '</td>' +
-        '<td>' + disabled + '</td>' +
-        '<td class="text-muted small">' + NETRA.escapeHtml(row.last_update || '-') + '</td>' +
+        '<td class="text-right num strong text-accent">' + NETRA.fmtMbps(row.last_rx_bps) + '</td>' +
+        '<td class="text-right num strong text-accent">' + NETRA.fmtMbps(row.last_tx_bps) + '</td>' +
         '<td>' + status + '</td>' +
+        '<td class="muted fs-xs">' + NETRA.escapeHtml(row.last_update || '-') + '</td>' +
       '</tr>'
     );
   }
 
   function renderDhcpRow(row, i) {
     var status = String(row.lease_status || '').toLowerCase() === 'bound'
-      ? '<span class="badge bg-success rounded-pill px-3 py-2"><i class="fa-solid fa-wifi me-1"></i> AKTIF</span>'
-      : '<span class="badge bg-secondary rounded-pill px-3 py-2">' + NETRA.escapeHtml(String(row.lease_status || '').toUpperCase()) + '</span>';
+      ? '<span class="badge badge--success"><i class="fa-solid fa-wifi"></i> Aktif</span>'
+      : '<span class="badge badge--neutral">' + NETRA.escapeHtml(String(row.lease_status || '').toUpperCase()) + '</span>';
     return (
       '<tr>' +
-        '<td class="text-muted">' + (i + 1) + '</td>' +
-        '<td class="fw-bold">' + NETRA.escapeHtml(row.host_name || 'Tanpa nama') +
-          '<br><small class="text-muted fw-normal">ID: ' + NETRA.escapeHtml(row.routeros_id) + '</small></td>' +
-        '<td class="text-nowrap"><code>' + NETRA.escapeHtml(row.ip_address || '-') + '</code></td>' +
-        '<td class="fw-bold text-primary text-nowrap">' + NETRA.fmtBytes(row.total_usage_bytes) + '</td>' +
-        '<td class="text-muted small">Last: ' + NETRA.escapeHtml(row.last_seen || '-') +
-          '<br>Expires: ' + NETRA.escapeHtml(row.expires_after || '-') + '</td>' +
-        '<td class="text-nowrap">' + status + '</td>' +
+        '<td class="muted">' + (i + 1) + '</td>' +
+        '<td>' +
+          '<div class="strong">' + NETRA.escapeHtml(row.host_name || 'Tanpa nama') + '</div>' +
+          '<div class="muted">ID: ' + NETRA.escapeHtml(row.routeros_id) + '</div>' +
+        '</td>' +
+        '<td><code>' + NETRA.escapeHtml(row.ip_address || '-') + '</code></td>' +
+        '<td class="text-right num strong text-accent">' + NETRA.fmtBytes(row.total_usage_bytes) + '</td>' +
+        '<td class="muted fs-xs">' +
+          'Last seen: ' + NETRA.escapeHtml(row.last_seen || '-') + '<br>' +
+          'Expires: ' + NETRA.escapeHtml(row.expires_after || '-') +
+        '</td>' +
+        '<td>' + status + '</td>' +
       '</tr>'
     );
   }
 
   function applySnapshot(snap) {
     if (!snap) return;
+    var pesan = document.getElementById('pesanDashboard');
     if (!snap.ok) {
-      var pesan = document.getElementById('pesanDashboard');
-      pesan.className = 'alert alert-danger shadow-sm';
-      pesan.textContent = 'Gagal kontak MikroTik Rumah: ' + snap.error;
+      pesan.className = 'alert alert--danger';
+      pesan.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i><div>Gagal kontak MikroTik Rumah: ' + NETRA.escapeHtml(snap.error) + '</div>';
       return;
     }
 
@@ -93,16 +107,14 @@
 
     document.getElementById('interfaceRows').innerHTML = snap.interfaces && snap.interfaces.length
       ? snap.interfaces.map(renderIfRow).join('')
-      : '<tr><td colspan="10" class="text-center text-muted py-4">Belum ada data interface.</td></tr>';
+      : '<tr><td colspan="8" class="table__empty">Belum ada data interface.</td></tr>';
 
     document.getElementById('dhcpRows').innerHTML = snap.leases && snap.leases.length
       ? snap.leases.map(renderDhcpRow).join('')
-      : '<tr><td colspan="6" class="text-center text-muted py-4">Belum ada DHCP lease.</td></tr>';
+      : '<tr><td colspan="6" class="table__empty">Belum ada DHCP lease.</td></tr>';
 
-    var pesan = document.getElementById('pesanDashboard');
-    pesan.className = 'alert alert-success shadow-sm';
-    pesan.innerHTML = '<i class="fa-solid fa-circle-check me-1"></i> ' +
-      'Total ' + snap.summary.total + ' interface, ' + snap.dhcpSummary.total + ' DHCP lease — diperbarui ' + snap.time + '.';
+    pesan.className = 'alert alert--success';
+    pesan.innerHTML = '<i class="fa-solid fa-circle-check"></i><div>Total <strong>' + snap.summary.total + '</strong> interface, <strong>' + snap.dhcpSummary.total + '</strong> DHCP lease · Update: ' + snap.time + '</div>';
   }
 
   async function reloadTrafik(periode) {
@@ -131,36 +143,33 @@
       tbody.innerHTML = data.rows.map(function (r, i) {
         var max = Math.max(Number(r.max_rx || 0), Number(r.max_tx || 0));
         return '<tr>' +
-          '<td>' + (i + 1) + '</td>' +
-          '<td class="fw-bold">' + NETRA.escapeHtml(r.interface_name) + '</td>' +
-          '<td>' + NETRA.fmtMbps(r.avg_rx) + '</td>' +
-          '<td>' + NETRA.fmtMbps(r.avg_tx) + '</td>' +
-          '<td>' + NETRA.fmtMbps(max) + '</td>' +
-          '<td>' + NETRA.fmtBytes(r.estimasi_bytes) + '</td>' +
-          '<td class="text-muted small">' + r.total_sample + ' sampel</td>' +
+          '<td class="muted">' + (i + 1) + '</td>' +
+          '<td class="strong">' + NETRA.escapeHtml(r.interface_name) + '</td>' +
+          '<td class="text-right num">' + NETRA.fmtMbps(r.avg_rx) + '</td>' +
+          '<td class="text-right num">' + NETRA.fmtMbps(r.avg_tx) + '</td>' +
+          '<td class="text-right num">' + NETRA.fmtMbps(max) + '</td>' +
+          '<td class="text-right num strong">' + NETRA.fmtBytes(r.estimasi_bytes) + '</td>' +
+          '<td class="text-right muted fs-xs">' + r.total_sample + ' sampel</td>' +
         '</tr>';
       }).join('');
     } else {
-      tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-4">Belum ada data penggunaan.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="7" class="table__empty">Belum ada data penggunaan untuk periode ini.</td></tr>';
     }
   }
 
-  // initial chart
   renderChart(window.__INITIAL_TRAFFIC__ || []);
 
   document.getElementById('filterPeriode').addEventListener('change', function () {
     reloadTrafik(this.value);
   });
 
-  // Refresh trafik agregat tiap 30 detik (DB query, ringan)
   setInterval(function () {
     var p = document.getElementById('filterPeriode').value;
     reloadTrafik(p);
   }, 30000);
 
-  // initial: fetch latest snapshot lalu subscribe WS
-  fetch('/api/rumah/snapshot').then(function (r) { return r.json(); }).then(function (data) {
-    if (data.snapshot) applySnapshot(data.snapshot);
-  });
+  fetch('/api/rumah/snapshot')
+    .then(function (r) { return r.json(); })
+    .then(function (data) { if (data.snapshot) applySnapshot(data.snapshot); });
   NETRA.connectWs('rumah', applySnapshot);
 })();

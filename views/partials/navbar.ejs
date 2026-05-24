@@ -1,8 +1,18 @@
-<nav class="navbar navbar-dark navbar-custom mb-4 shadow-sm">
-  <div class="container-fluid px-4">
-    <span class="navbar-brand mb-0 h1"><i class="<%= navIcon %> me-2"></i> <%= title %></span>
-    <span class="text-light">
-      <i class="fa-regular fa-clock"></i> <span id="waktuUpdate"><%= new Date().toLocaleString('id-ID') %></span>
+<header class="topbar">
+  <button class="topbar__menu-btn" id="menuBtn" aria-label="Buka menu" type="button">
+    <i class="fa-solid fa-bars"></i>
+  </button>
+  <h1 class="topbar__title">
+    <i class="<%= navIcon %>"></i>
+    <span class="topbar__title-text"><%= title %></span>
+  </h1>
+  <div class="topbar__meta">
+    <span class="topbar__chip">
+      <i class="fa-regular fa-clock"></i>
+      <span id="waktuUpdate"><%= new Date().toLocaleString('id-ID') %></span>
     </span>
+    <button class="topbar__theme-toggle" id="themeBtn" aria-label="Ubah tema" type="button">
+      <i class="fa-solid fa-moon"></i>
+    </button>
   </div>
-</nav>
+</header>

@@ -2,63 +2,85 @@
 <html lang="id">
 <head>
   <%- include('partials/head', { title }) %>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </head>
 <body>
-<div class="d-flex">
+<div class="app">
   <%- include('partials/sidebar', { page }) %>
-  <div class="flex-grow-1">
+  <div class="main">
     <%- include('partials/navbar', { title, navIcon: 'fa-solid fa-users' }) %>
-    <div class="container-fluid px-4">
-      <a href="/opd" class="btn btn-sm btn-outline-secondary mb-3"><i class="fa-solid fa-arrow-left me-1"></i> Kembali</a>
-      <h4 class="mb-1"><%= opd.name %></h4>
-      <div class="text-muted small mb-3">Host: <code><%= opd.host %></code></div>
+    <div class="content">
 
-      <div id="errBox" class="alert alert-danger d-none"></div>
+      <a href="/opd" class="btn btn--ghost btn--sm" style="margin-bottom: var(--space-4);">
+        <i class="fa-solid fa-arrow-left"></i> Kembali ke List OPD
+      </a>
 
-      <div class="row mb-4">
-        <div class="col-md-6">
-          <div class="card shadow-sm h-100">
-            <div class="card-body">
-              <h6 class="card-title text-muted text-uppercase">Distribusi Tipe User</h6>
-              <div style="height: 280px;"><canvas id="dist"></canvas></div>
-            </div>
+      <div class="card" style="margin-bottom: var(--space-4);">
+        <div class="card__body" style="display:flex; gap: var(--space-4); align-items: center; justify-content: space-between; flex-wrap: wrap;">
+          <div>
+            <h3 style="margin: 0;"><%= opd.name %></h3>
+            <div class="muted fs-sm" style="margin-top:4px;">Host: <code><%= opd.host %></code></div>
+          </div>
+          <span class="badge badge--primary"><i class="fa-solid fa-arrows-rotate"></i> Auto-refresh 20s</span>
+        </div>
+      </div>
+
+      <div id="errBox" class="alert alert--danger" style="display:none;">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <div id="errBoxText"></div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card__head"><h3 style="margin:0;"><i class="fa-solid fa-chart-pie text-accent"></i> Distribusi Tipe User</h3></div>
+          <div class="card__body">
+            <div class="chart-box chart-box--sm"><canvas id="dist"></canvas></div>
           </div>
         </div>
-        <div class="col-md-6">
-          <div class="card shadow-sm h-100">
-            <div class="card-body">
-              <h6 class="card-title text-muted text-uppercase">Top 5 Konsumsi Data (Hotspot)</h6>
-              <div style="height: 280px;"><canvas id="top5"></canvas></div>
-            </div>
+        <div class="card">
+          <div class="card__head"><h3 style="margin:0;"><i class="fa-solid fa-medal text-accent"></i> Top 5 Konsumsi Data (Hotspot)</h3></div>
+          <div class="card__body">
+            <div class="chart-box chart-box--sm"><canvas id="top5"></canvas></div>
           </div>
         </div>
       </div>
 
-      <div class="table-wrapper mb-4">
-        <h5 class="mb-3"><i class="fa-solid fa-wifi me-2"></i>Hotspot Aktif</h5>
-        <div class="table-responsive">
-          <table class="table table-hover align-middle" id="hotspotTable">
-            <thead class="table-light"><tr><th>#</th><th>User</th><th>IP</th><th>MAC</th><th>Uptime</th><th>Download</th><th>Upload</th><th>Total</th></tr></thead>
-            <tbody></tbody>
-          </table>
+      <section class="section" style="margin-top: var(--space-6);">
+        <div class="section__head">
+          <h2 class="section__title"><i class="fa-solid fa-wifi"></i> Hotspot Aktif</h2>
         </div>
-      </div>
+        <div class="table-wrap">
+          <div class="table-scroll">
+            <table class="table" id="hotspotTable">
+              <thead>
+                <tr><th>#</th><th>User</th><th>IP</th><th>MAC</th><th>Uptime</th><th class="text-right">Download</th><th class="text-right">Upload</th><th class="text-right">Total</th></tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
 
-      <div class="table-wrapper">
-        <h5 class="mb-3"><i class="fa-solid fa-network-wired me-2"></i>PPP / VPN Aktif</h5>
-        <div class="table-responsive">
-          <table class="table table-hover align-middle" id="pppTable">
-            <thead class="table-light"><tr><th>#</th><th>Service</th><th>User</th><th>Caller</th><th>Uptime</th></tr></thead>
-            <tbody></tbody>
-          </table>
+      <section class="section">
+        <div class="section__head">
+          <h2 class="section__title"><i class="fa-solid fa-network-wired"></i> PPP / VPN Aktif</h2>
         </div>
-      </div>
+        <div class="table-wrap">
+          <div class="table-scroll">
+            <table class="table" id="pppTable">
+              <thead>
+                <tr><th>#</th><th>Service</th><th>User</th><th>Caller</th><th>Uptime</th></tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
     </div>
   </div>
 </div>
 <script>window.__OPD_NAME__ = <%- JSON.stringify(opd.name) %>;</script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="/static/js/opd_detail.js"></script>
 </body>
 </html>

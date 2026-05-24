@@ -1,7 +1,9 @@
-// Utilities umum dipakai semua halaman dashboard
+// Netra — Common client-side utilities
+// Auto-initialized: theme toggle, mobile drawer, WS badge management.
 (function () {
   window.NETRA = window.NETRA || {};
 
+  // ---- Formatters --------------------------------------------------------
   NETRA.fmtMbps = function (bps) {
     return (Number(bps || 0) / 1000000).toFixed(2) + ' Mbps';
   };
@@ -23,6 +25,44 @@
       .replace(/'/g, '&#39;');
   };
 
+  // ---- Mobile drawer -----------------------------------------------------
+  function initDrawer() {
+    var btn = document.getElementById('menuBtn');
+    var sidebar = document.getElementById('sidebar');
+    var scrim = document.getElementById('scrim');
+    if (!btn || !sidebar || !scrim) return;
+    function open() { sidebar.classList.add('is-open'); scrim.classList.add('is-open'); }
+    function close() { sidebar.classList.remove('is-open'); scrim.classList.remove('is-open'); }
+    btn.addEventListener('click', open);
+    scrim.addEventListener('click', close);
+    sidebar.querySelectorAll('a').forEach(function (a) { a.addEventListener('click', close); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
+  }
+
+  // ---- Theme toggle ------------------------------------------------------
+  function initTheme() {
+    var btn = document.getElementById('themeBtn');
+    if (!btn) return;
+    var icon = btn.querySelector('i');
+    function apply(theme) {
+      if (theme === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        if (icon) icon.className = 'fa-solid fa-sun';
+      } else {
+        document.documentElement.removeAttribute('data-theme');
+        if (icon) icon.className = 'fa-solid fa-moon';
+      }
+      localStorage.setItem('netra-theme', theme);
+    }
+    var current = localStorage.getItem('netra-theme') === 'dark' ? 'dark' : 'light';
+    apply(current);
+    btn.addEventListener('click', function () {
+      current = current === 'dark' ? 'light' : 'dark';
+      apply(current);
+    });
+  }
+
+  // ---- WebSocket connection helper ---------------------------------------
   NETRA.connectWs = function (topic, onMessage) {
     var proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
     var url = proto + '//' + location.host + '/ws?topic=' + encodeURIComponent(topic);
@@ -32,26 +72,23 @@
 
     function setBadge(state) {
       if (!badge) return;
-      badge.classList.remove('connected', 'disconnected', 'bg-secondary');
+      badge.classList.remove('is-connected', 'is-disconnected', 'is-connecting');
       if (state === 'connected') {
-        badge.classList.add('connected');
-        badge.innerHTML = '<i class="fa-solid fa-plug me-1"></i> Live';
+        badge.classList.add('is-connected');
+        badge.innerHTML = '<i class="fa-solid fa-circle"></i> Live';
       } else if (state === 'connecting') {
-        badge.classList.add('bg-secondary');
-        badge.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin me-1"></i> WS';
+        badge.classList.add('is-connecting');
+        badge.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Connecting';
       } else {
-        badge.classList.add('disconnected');
-        badge.innerHTML = '<i class="fa-solid fa-plug me-1"></i> Offline';
+        badge.classList.add('is-disconnected');
+        badge.innerHTML = '<i class="fa-solid fa-plug-circle-xmark"></i> Offline';
       }
     }
 
     function connect() {
       setBadge('connecting');
       ws = new WebSocket(url);
-      ws.onopen = function () {
-        retry = 0;
-        setBadge('connected');
-      };
+      ws.onopen = function () { retry = 0; setBadge('connected'); };
       ws.onmessage = function (evt) {
         try {
           var msg = JSON.parse(evt.data);
@@ -63,12 +100,20 @@
         var delay = Math.min(15000, 1000 * Math.pow(2, retry++));
         setTimeout(connect, delay);
       };
-      ws.onerror = function () {
-        try { ws.close(); } catch (e) {}
-      };
+      ws.onerror = function () { try { ws.close(); } catch (e) {} };
     }
 
     connect();
     return { close: function () { ws && ws.close(); } };
   };
+
+  // ---- Bootstrap on DOM ready -------------------------------------------
+  function ready(fn) {
+    if (document.readyState !== 'loading') fn();
+    else document.addEventListener('DOMContentLoaded', fn);
+  }
+  ready(function () {
+    initDrawer();
+    initTheme();
+  });
 })();

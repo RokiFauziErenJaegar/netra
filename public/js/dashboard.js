@@ -1,28 +1,23 @@
 (function () {
   function renderRow(row, i) {
-    var running = Number(row.running) === 1
-      ? '<span class="text-success fw-bold">Ya</span>'
-      : '<span class="text-danger fw-bold">Tidak</span>';
-    var disabled = Number(row.disabled) === 1
-      ? '<span class="text-danger fw-bold">Ya</span>'
-      : '<span class="text-success fw-bold">Tidak</span>';
-    var status = row.status_terakhir === 'Up'
-      ? '<span class="badge bg-success rounded-pill px-3 py-2"><i class="fa-solid fa-check me-1"></i> TERHUBUNG</span>'
-      : '<span class="badge bg-danger rounded-pill px-3 py-2"><i class="fa-solid fa-xmark me-1"></i> TIDAK TERHUBUNG</span>';
+    var statusBadge = row.status_terakhir === 'Up'
+      ? '<span class="badge badge--success"><i class="fa-solid fa-check"></i> Terhubung</span>'
+      : '<span class="badge badge--danger"><i class="fa-solid fa-xmark"></i> Tidak Terhubung</span>';
     return (
       '<tr>' +
-        '<td>' + (i + 1) + '</td>' +
-        '<td class="fw-bold">' + NETRA.escapeHtml(row.interface_name) +
-          '<br><small class="text-muted fw-normal">ID: ' + NETRA.escapeHtml(row.routeros_id) + '</small></td>' +
-        '<td>' + NETRA.escapeHtml(row.type || '-') + '</td>' +
+        '<td class="muted">' + (i + 1) + '</td>' +
+        '<td>' +
+          '<div class="strong">' + NETRA.escapeHtml(row.interface_name) + '</div>' +
+          '<div class="muted">ID: ' + NETRA.escapeHtml(row.routeros_id) + '</div>' +
+        '</td>' +
+        '<td class="muted">' + NETRA.escapeHtml(row.type || '-') + '</td>' +
         '<td><code>' + NETRA.escapeHtml(row.mac_address || '-') + '</code></td>' +
-        '<td class="fw-bold text-primary">' + NETRA.fmtMbps(row.last_rx_bps) + '</td>' +
-        '<td class="fw-bold text-info">' + NETRA.fmtMbps(row.last_tx_bps) + '</td>' +
-        '<td>' + running + '</td>' +
-        '<td>' + disabled + '</td>' +
-        '<td class="text-muted small">' + NETRA.escapeHtml(row.last_update || '-') + '</td>' +
-        '<td>' + status + '</td>' +
-        '<td><a href="/detail/' + row.id_opd + '" class="btn btn-sm btn-outline-primary"><i class="fa-solid fa-chart-line"></i></a></td>' +
+        '<td class="text-right num text-accent strong">' + NETRA.fmtMbps(row.last_rx_bps) + '</td>' +
+        '<td class="text-right num text-accent strong">' + NETRA.fmtMbps(row.last_tx_bps) + '</td>' +
+        '<td>' + statusBadge + '</td>' +
+        '<td class="muted text-nowrap fs-xs">' + NETRA.escapeHtml(row.last_update || '-') + '</td>' +
+        '<td><a href="/detail/' + row.id_opd + '" class="btn btn--ghost btn--sm" title="Detail">' +
+          '<i class="fa-solid fa-chart-line"></i></a></td>' +
       '</tr>'
     );
   }
@@ -31,8 +26,8 @@
     if (!snap) return;
     if (!snap.ok) {
       var alert = document.getElementById('pesanDashboard');
-      alert.className = 'alert alert-danger shadow-sm';
-      alert.textContent = 'Gagal kontak MikroTik Diskominfo: ' + snap.error;
+      alert.className = 'alert alert--danger';
+      alert.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i><div>Gagal kontak MikroTik Diskominfo: ' + NETRA.escapeHtml(snap.error) + '</div>';
       return;
     }
     var s = snap.summary || { total: 0, up: 0, down: 0 };
@@ -45,18 +40,17 @@
     if (snap.interfaces && snap.interfaces.length) {
       tbody.innerHTML = snap.interfaces.map(renderRow).join('');
     } else {
-      tbody.innerHTML = '<tr><td colspan="11" class="text-center text-muted py-4">Belum ada data interface.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="9" class="table__empty">Belum ada data interface.</td></tr>';
     }
 
     var pesan = document.getElementById('pesanDashboard');
-    pesan.className = 'alert alert-success shadow-sm';
-    pesan.innerHTML = '<i class="fa-solid fa-circle-check me-1"></i> Berhasil membaca ' + s.total + ' interface MikroTik Diskominfo (terakhir: ' + snap.time + ').';
+    pesan.className = 'alert alert--success';
+    pesan.innerHTML = '<i class="fa-solid fa-circle-check"></i><div>Berhasil membaca <strong>' + s.total + '</strong> interface MikroTik Diskominfo · Terakhir update: ' + snap.time + '</div>';
   }
 
-  // initial: fetch latest snapshot
-  fetch('/api/dashboard/snapshot').then(function (r) { return r.json(); }).then(function (data) {
-    if (data.snapshot) applySnapshot(data.snapshot);
-  });
+  fetch('/api/dashboard/snapshot')
+    .then(function (r) { return r.json(); })
+    .then(function (data) { if (data.snapshot) applySnapshot(data.snapshot); });
 
   NETRA.connectWs('dashboard', applySnapshot);
 })();

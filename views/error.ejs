@@ -4,14 +4,14 @@
   <%- include('partials/head', { title: 'Error ' + code }) %>
 </head>
 <body>
-<div class="d-flex">
-  <%- include('partials/sidebar', { page }) %>
-  <div class="flex-grow-1 d-flex align-items-center justify-content-center" style="min-height: 100vh;">
-    <div class="text-center">
-      <h1 class="display-1 fw-bold text-secondary"><%= code %></h1>
-      <p class="lead text-muted"><%= message %></p>
-      <a href="/" class="btn btn-primary"><i class="fa-solid fa-home me-1"></i> Kembali ke Dashboard</a>
-    </div>
+<div class="error-page">
+  <div>
+    <div class="error-code"><%= code %></div>
+    <h2><%= message %></h2>
+    <p class="text-muted">Maaf, terjadi masalah saat memproses permintaan Anda.</p>
+    <a href="/" class="btn btn--primary" style="margin-top: var(--space-4);">
+      <i class="fa-solid fa-home"></i> Kembali ke Dashboard
+    </a>
   </div>
 </div>
 </body>
