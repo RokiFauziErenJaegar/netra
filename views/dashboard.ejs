@@ -58,15 +58,16 @@
             <table class="table">
               <thead>
                 <tr>
-                  <th>#</th>
+                  <th style="width:48px;">#</th>
                   <th>Interface</th>
                   <th>Tipe</th>
                   <th>MAC Address</th>
                   <th class="text-right">Download</th>
                   <th class="text-right">Upload</th>
-                  <th>Status</th>
+                  <th class="text-center">Disabled</th>
+                  <th class="text-center">Status</th>
                   <th>Cek Terakhir</th>
-                  <th></th>
+                  <th class="text-center" style="width:60px;">Aksi</th>
                 </tr>
               </thead>
               <tbody id="interfaceRows">
@@ -80,9 +81,16 @@
                       </td>
                       <td class="muted"><%= row.type || '-' %></td>
                       <td><code><%= row.mac_address || '-' %></code></td>
-                      <td class="text-right num text-accent strong"><%= fmtMbps(row.last_rx_bps) %></td>
-                      <td class="text-right num text-accent strong"><%= fmtMbps(row.last_tx_bps) %></td>
-                      <td>
+                      <td class="text-right num text-accent strong text-nowrap"><%= fmtMbps(row.last_rx_bps) %></td>
+                      <td class="text-right num text-accent strong text-nowrap"><%= fmtMbps(row.last_tx_bps) %></td>
+                      <td class="text-center">
+                        <% if (Number(row.disabled) === 1) { %>
+                          <span class="badge badge--warning"><i class="fa-solid fa-ban"></i> Ya</span>
+                        <% } else { %>
+                          <span class="badge badge--neutral">Tidak</span>
+                        <% } %>
+                      </td>
+                      <td class="text-center">
                         <% if (row.status_terakhir === 'Up') { %>
                           <span class="badge badge--success"><i class="fa-solid fa-check"></i> Terhubung</span>
                         <% } else { %>
@@ -90,7 +98,7 @@
                         <% } %>
                       </td>
                       <td class="muted text-nowrap fs-xs"><%= row.last_update || '-' %></td>
-                      <td>
+                      <td class="text-center">
                         <a href="/detail/<%= row.id_opd %>" class="btn btn--ghost btn--sm" title="Lihat detail traffic">
                           <i class="fa-solid fa-chart-line"></i>
                         </a>
@@ -98,7 +106,7 @@
                     </tr>
                   <% }) %>
                 <% } else { %>
-                  <tr><td colspan="9" class="table__empty">
+                  <tr><td colspan="10" class="table__empty">
                     <i class="fa-solid fa-hourglass-half"></i> Menunggu poll pertama dari monitor service…
                   </td></tr>
                 <% } %>

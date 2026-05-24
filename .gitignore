@@ -21,3 +21,5 @@ build/
 .cache/
 
 boot.*
+
+.commit-msg.txt

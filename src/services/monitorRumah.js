@@ -59,7 +59,7 @@ class RumahMonitor {
       snap = await this.client.snapshot({
         withTraffic: true,
         withDhcp: true,
-        withConnections: this.tickCount % 5 === 0 // hitung pemakaian per IP setiap 5 tick saja (lebih ringan)
+        withConnections: true // selalu fetch agar bandwidth tidak ke-reset ke 0 antar tick
       });
     } catch (err) {
       this.lastError = err.message;
@@ -69,7 +69,15 @@ class RumahMonitor {
     }
     this.lastError = null;
 
-    const usagePerIp = computeUsagePerIp(snap.connections || []);
+    // Daftar IP LAN yang dikenal dari DHCP leases -> dipakai untuk filter
+    // koneksi mana yang punya IP lokal (sisi LAN), agar bandwidth-nya
+    // ke-credit ke device yang benar.
+    const knownLanIps = new Set();
+    for (const l of snap.dhcp || []) {
+      const ip = l['active-address'] || l.address;
+      if (ip) knownLanIps.add(ip);
+    }
+    const usagePerIp = computeUsagePerIp(snap.connections || [], knownLanIps);
 
     const conn = await pool.getConnection();
     const seenIface = [];
@@ -261,15 +269,30 @@ class RumahMonitor {
   }
 }
 
-function computeUsagePerIp(connections) {
+/**
+ * Hitung bandwidth aktif per IP LAN dari conntrack snapshot.
+ *
+ * Untuk setiap koneksi, kita identifikasi sisi LAN-nya:
+ * - Jika src ∈ LAN: ini koneksi keluar (LAN→Internet) — credit src dengan
+ *   orig (upload) + repl (download).
+ * - Jika dst ∈ LAN: ini koneksi masuk (Internet→LAN) — credit dst dengan
+ *   orig (download) + repl (upload).
+ *
+ * Total bandwidth yang ditampilkan = jumlah bytes pada semua koneksi
+ * AKTIF sekarang yang melibatkan IP tersebut. Saat koneksi tutup, angka
+ * turun. Ini adalah "instantaneous snapshot", bukan akumulasi seumur hidup.
+ */
+function computeUsagePerIp(connections, lanIps) {
   const usage = {};
+  const isLan = (ip) => ip && lanIps && lanIps.has(ip);
   for (const c of connections) {
     const src = stripPort(c['src-address']);
     const dst = stripPort(c['dst-address']);
     const orig = parseInt(c['orig-bytes'] || 0, 10);
     const repl = parseInt(c['repl-bytes'] || 0, 10);
-    if (src) usage[src] = (usage[src] || 0) + orig;
-    if (dst) usage[dst] = (usage[dst] || 0) + repl;
+    const total = orig + repl;
+    if (isLan(src)) usage[src] = (usage[src] || 0) + total;
+    if (isLan(dst) && dst !== src) usage[dst] = (usage[dst] || 0) + total;
   }
   return usage;
 }

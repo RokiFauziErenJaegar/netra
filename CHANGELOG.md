@@ -3,6 +3,50 @@
 Catatan rilis untuk Netra. Mengikuti format [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/)
 dan [Semantic Versioning](https://semver.org/lang/id/).
 
+## [1.1.3] — 2026-05-25
+
+Bugfix table layout + DHCP bandwidth tracking yang sebelumnya tidak akurat.
+
+### 🐛 Diperbaiki
+
+**DHCP Bandwidth (BUG SERIUS — sebelumnya semua 0):**
+- **Connection data sekarang di-fetch setiap tick** (sebelumnya hanya
+  tiap 5 tick). Saat tidak di-fetch, UPSERT menulis `total_usage_bytes=0`
+  yang menimpa nilai sebelumnya.
+- **LAN-IP detection** dari daftar DHCP lease — koneksi hanya
+  di-credit ke IP yang benar-benar terdaftar sebagai device LAN.
+- **Hitung orig + repl bytes lengkap** (sebelumnya hanya orig untuk src,
+  repl untuk dst — yang menyebabkan setengah traffic hilang).
+- Hasil verifikasi: 0/9 device dengan data → **9/9 device** dengan data
+  bandwidth aktual setelah fix.
+
+**Header tabel tidak align dengan kolom angka:**
+- `text-right`, `text-center`, `text-left` sekarang pakai `!important`
+  agar override CSS specificity dari `.table thead th` (yang punya
+  text-align: left default).
+
+### ✨ Ditambahkan
+- **Kolom Disabled** di tabel Status Interface (Diskominfo + Rumah).
+  Badge warning kuning saat interface ter-disable di MikroTik.
+- Kolom MAC Address sekarang text-nowrap (tidak terpotong).
+- Kolom Bandwidth/Download/Upload text-nowrap (Mbps unit tidak pindah baris).
+
+### 🔄 Diubah
+- Header DHCP **"Total Bandwidth" → "Bandwidth Aktif"** untuk merefleksikan
+  semantik sebenarnya: bytes pada koneksi yang sedang aktif (instantaneous
+  snapshot), bukan akumulasi seumur hidup device.
+- Width kolom # diset eksplisit 48px agar tidak terlalu lebar.
+- Width kolom Aksi 60px.
+
+### ⚙️ Upgrade dari v1.1.2
+```powershell
+git pull origin main
+pm2 restart netra
+```
+Cache `?v=1.1.3` otomatis bust browser cache.
+
+---
+
 ## [1.1.2] — 2026-05-24
 
 UX patch: dashboard sekarang **terasa benar-benar live**, bukan hanya
@@ -198,6 +242,7 @@ DB compatible — kolom baru ditambah lewat auto-migration tanpa data loss.
 
 ---
 
+[1.1.3]: https://github.com/RokiFauziErenJaegar/netra/releases/tag/v1.1.3
 [1.1.2]: https://github.com/RokiFauziErenJaegar/netra/releases/tag/v1.1.2
 [1.1.1]: https://github.com/RokiFauziErenJaegar/netra/releases/tag/v1.1.1
 [1.1.0]: https://github.com/RokiFauziErenJaegar/netra/releases/tag/v1.1

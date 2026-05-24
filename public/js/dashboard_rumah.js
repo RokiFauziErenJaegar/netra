@@ -49,6 +49,9 @@
     var status = row.status_terakhir === 'Terhubung'
       ? '<span class="badge badge--success"><i class="fa-solid fa-check"></i> Terhubung</span>'
       : '<span class="badge badge--danger"><i class="fa-solid fa-xmark"></i> Tidak Terhubung</span>';
+    var disabled = Number(row.disabled) === 1
+      ? '<span class="badge badge--warning"><i class="fa-solid fa-ban"></i> Ya</span>'
+      : '<span class="badge badge--neutral">Tidak</span>';
     return (
       '<tr>' +
         '<td class="muted">' + (i + 1) + '</td>' +
@@ -58,10 +61,11 @@
         '</td>' +
         '<td class="muted">' + NETRA.escapeHtml(row.type || '-') + '</td>' +
         '<td><code>' + NETRA.escapeHtml(row.mac_address || '-') + '</code></td>' +
-        '<td class="text-right num strong text-accent">' + NETRA.fmtMbps(row.last_rx_bps) + '</td>' +
-        '<td class="text-right num strong text-accent">' + NETRA.fmtMbps(row.last_tx_bps) + '</td>' +
-        '<td>' + status + '</td>' +
-        '<td class="muted fs-xs">' + NETRA.escapeHtml(row.last_update || '-') + '</td>' +
+        '<td class="text-right num strong text-accent text-nowrap">' + NETRA.fmtMbps(row.last_rx_bps) + '</td>' +
+        '<td class="text-right num strong text-accent text-nowrap">' + NETRA.fmtMbps(row.last_tx_bps) + '</td>' +
+        '<td class="text-center">' + disabled + '</td>' +
+        '<td class="text-center">' + status + '</td>' +
+        '<td class="muted fs-xs text-nowrap">' + NETRA.escapeHtml(row.last_update || '-') + '</td>' +
       '</tr>'
     );
   }
@@ -78,12 +82,12 @@
           '<div class="muted">ID: ' + NETRA.escapeHtml(row.routeros_id) + '</div>' +
         '</td>' +
         '<td><code>' + NETRA.escapeHtml(row.ip_address || '-') + '</code></td>' +
-        '<td class="text-right num strong text-accent">' + NETRA.fmtBytes(row.total_usage_bytes) + '</td>' +
+        '<td class="text-right num strong text-accent text-nowrap">' + NETRA.fmtBytes(row.total_usage_bytes) + '</td>' +
         '<td class="muted fs-xs">' +
           'Last seen: ' + NETRA.escapeHtml(row.last_seen || '-') + '<br>' +
           'Expires: ' + NETRA.escapeHtml(row.expires_after || '-') +
         '</td>' +
-        '<td>' + status + '</td>' +
+        '<td class="text-center">' + status + '</td>' +
       '</tr>'
     );
   }

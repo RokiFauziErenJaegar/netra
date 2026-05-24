@@ -3,6 +3,9 @@
     var statusBadge = row.status_terakhir === 'Up'
       ? '<span class="badge badge--success"><i class="fa-solid fa-check"></i> Terhubung</span>'
       : '<span class="badge badge--danger"><i class="fa-solid fa-xmark"></i> Tidak Terhubung</span>';
+    var disabled = Number(row.disabled) === 1
+      ? '<span class="badge badge--warning"><i class="fa-solid fa-ban"></i> Ya</span>'
+      : '<span class="badge badge--neutral">Tidak</span>';
     return (
       '<tr>' +
         '<td class="muted">' + (i + 1) + '</td>' +
@@ -12,11 +15,12 @@
         '</td>' +
         '<td class="muted">' + NETRA.escapeHtml(row.type || '-') + '</td>' +
         '<td><code>' + NETRA.escapeHtml(row.mac_address || '-') + '</code></td>' +
-        '<td class="text-right num text-accent strong">' + NETRA.fmtMbps(row.last_rx_bps) + '</td>' +
-        '<td class="text-right num text-accent strong">' + NETRA.fmtMbps(row.last_tx_bps) + '</td>' +
-        '<td>' + statusBadge + '</td>' +
+        '<td class="text-right num text-accent strong text-nowrap">' + NETRA.fmtMbps(row.last_rx_bps) + '</td>' +
+        '<td class="text-right num text-accent strong text-nowrap">' + NETRA.fmtMbps(row.last_tx_bps) + '</td>' +
+        '<td class="text-center">' + disabled + '</td>' +
+        '<td class="text-center">' + statusBadge + '</td>' +
         '<td class="muted text-nowrap fs-xs">' + NETRA.escapeHtml(row.last_update || '-') + '</td>' +
-        '<td><a href="/detail/' + row.id_opd + '" class="btn btn--ghost btn--sm" title="Detail">' +
+        '<td class="text-center"><a href="/detail/' + row.id_opd + '" class="btn btn--ghost btn--sm" title="Detail">' +
           '<i class="fa-solid fa-chart-line"></i></a></td>' +
       '</tr>'
     );
@@ -40,7 +44,7 @@
     if (snap.interfaces && snap.interfaces.length) {
       tbody.innerHTML = snap.interfaces.map(renderRow).join('');
     } else {
-      tbody.innerHTML = '<tr><td colspan="9" class="table__empty">Belum ada data interface.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="10" class="table__empty">Belum ada data interface.</td></tr>';
     }
 
     var pesan = document.getElementById('pesanDashboard');

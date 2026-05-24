@@ -59,12 +59,12 @@
             <table class="table">
               <thead>
                 <tr>
-                  <th>#</th>
+                  <th style="width:48px;">#</th>
                   <th>Perangkat</th>
                   <th>IP Address</th>
-                  <th class="text-right">Total Bandwidth</th>
+                  <th class="text-right">Bandwidth Aktif</th>
                   <th>Lease Info</th>
-                  <th>Status</th>
+                  <th class="text-center">Status</th>
                 </tr>
               </thead>
               <tbody id="dhcpRows">
@@ -77,12 +77,12 @@
                         <div class="muted">ID: <%= row.routeros_id %></div>
                       </td>
                       <td><code><%= row.ip_address || '-' %></code></td>
-                      <td class="text-right num strong text-accent"><%= fmtBytes(row.total_usage_bytes) %></td>
+                      <td class="text-right num strong text-accent text-nowrap"><%= fmtBytes(row.total_usage_bytes) %></td>
                       <td class="muted fs-xs">
                         <div>Last seen: <%= row.last_seen || '-' %></div>
                         <div>Expires: <%= row.expires_after || '-' %></div>
                       </td>
-                      <td>
+                      <td class="text-center">
                         <% if (String(row.lease_status).toLowerCase() === 'bound') { %>
                           <span class="badge badge--success"><i class="fa-solid fa-wifi"></i> Aktif</span>
                         <% } else { %>
@@ -113,13 +113,14 @@
             <table class="table">
               <thead>
                 <tr>
-                  <th>#</th>
+                  <th style="width:48px;">#</th>
                   <th>Interface</th>
                   <th>Tipe</th>
-                  <th>MAC</th>
+                  <th>MAC Address</th>
                   <th class="text-right">Download</th>
                   <th class="text-right">Upload</th>
-                  <th>Status</th>
+                  <th class="text-center">Disabled</th>
+                  <th class="text-center">Status</th>
                   <th>Cek Terakhir</th>
                 </tr>
               </thead>
@@ -134,20 +135,27 @@
                       </td>
                       <td class="muted"><%= row.type || '-' %></td>
                       <td><code><%= row.mac_address || '-' %></code></td>
-                      <td class="text-right num strong text-accent"><%= fmtMbps(row.last_rx_bps) %></td>
-                      <td class="text-right num strong text-accent"><%= fmtMbps(row.last_tx_bps) %></td>
-                      <td>
+                      <td class="text-right num strong text-accent text-nowrap"><%= fmtMbps(row.last_rx_bps) %></td>
+                      <td class="text-right num strong text-accent text-nowrap"><%= fmtMbps(row.last_tx_bps) %></td>
+                      <td class="text-center">
+                        <% if (Number(row.disabled) === 1) { %>
+                          <span class="badge badge--warning"><i class="fa-solid fa-ban"></i> Ya</span>
+                        <% } else { %>
+                          <span class="badge badge--neutral">Tidak</span>
+                        <% } %>
+                      </td>
+                      <td class="text-center">
                         <% if (row.status_terakhir === 'Terhubung') { %>
                           <span class="badge badge--success"><i class="fa-solid fa-check"></i> Terhubung</span>
                         <% } else { %>
                           <span class="badge badge--danger"><i class="fa-solid fa-xmark"></i> Tidak Terhubung</span>
                         <% } %>
                       </td>
-                      <td class="muted fs-xs"><%= row.last_update %></td>
+                      <td class="muted fs-xs text-nowrap"><%= row.last_update %></td>
                     </tr>
                   <% }) %>
                 <% } else { %>
-                  <tr><td colspan="8" class="table__empty">Belum ada data interface.</td></tr>
+                  <tr><td colspan="9" class="table__empty">Belum ada data interface.</td></tr>
                 <% } %>
               </tbody>
             </table>

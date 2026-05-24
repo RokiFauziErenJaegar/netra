@@ -588,8 +588,9 @@ p { margin: 0 0 1em; }
 .text-success { color: var(--success) !important; }
 .text-danger  { color: var(--danger)  !important; }
 .text-accent  { color: var(--accent)  !important; }
-.text-center { text-align: center; }
-.text-right { text-align: right; }
+.text-center { text-align: center !important; }
+.text-right  { text-align: right !important; }
+.text-left   { text-align: left !important; }
 .text-nowrap { white-space: nowrap; }
 
 .fw-500 { font-weight: 500; }
