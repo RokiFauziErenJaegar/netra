@@ -55,7 +55,7 @@ const config = {
       timeoutMs: int(process.env.MIKROTIK_DISKOMINFO_TIMEOUT_MS, 5000)
     },
     rumah: {
-      host: process.env.MIKROTIK_RUMAH_HOST || '192.168.1.11',
+      host: process.env.MIKROTIK_RUMAH_HOST || '192.168.1.254',
       user: process.env.MIKROTIK_RUMAH_USER || 'admin',
       password: process.env.MIKROTIK_RUMAH_PASSWORD || '',
       port: int(process.env.MIKROTIK_RUMAH_PORT, 8728),

@@ -65,8 +65,11 @@
     var data = await resp.json();
     renderChart(data);
     updateTable(data);
+    NETRA.markUpdate();
   }
 
   refresh();
   setInterval(refresh, 15000);
+
+  NETRA.connectWs('opd', function () {});
 })();
