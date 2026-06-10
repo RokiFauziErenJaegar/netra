@@ -8,6 +8,7 @@ const pkg = require('../package.json');
 
 const pagesRouter = require('./routes/pages');
 const apiRouter = require('./routes/api');
+const apiV1Router = require('./routes/apiV1');
 
 // Asset version untuk cache-busting (?v=1.1.1).
 // Berubah tiap rilis -> browser & CDN otomatis ambil ulang asset.
@@ -71,6 +72,7 @@ function createApp() {
     res.json({ ok: true, time: new Date().toISOString() });
   });
 
+  app.use('/api/v1', apiV1Router);
   app.use('/api', apiRouter);
   app.use('/', pagesRouter);
 
