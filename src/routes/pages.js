@@ -7,6 +7,8 @@ const diskominfoMonitor = require('../services/monitorDiskominfo');
 const rumahMonitor = require('../services/monitorRumah');
 const { MikroTikClient } = require('../services/mikrotik');
 const { formatMbps, formatBytes } = require('../services/helpers');
+const settings = require('../services/settings');
+const { sendWhatsapp } = require('../services/whatsapp');
 
 const router = express.Router();
 
@@ -133,6 +135,49 @@ router.get('/rumah/laporan', async (req, res) => {
     trafik,
     routerHost: config.mikrotik.rumah.host
   });
+});
+
+// --- Server WA OTP (pilih provider: Fonnte / Roki) ---
+router.get('/server-wa', async (req, res) => {
+  const wa = await settings.getWaConfig();
+  res.render('server_wa', {
+    page: 'server-wa',
+    title: 'Server WA OTP',
+    wa,
+    saved: req.query.saved === '1',
+    error: req.query.error || null
+  });
+});
+
+router.post('/server-wa', async (req, res) => {
+  try {
+    const provider = req.body.wa_provider === 'roki' ? 'roki' : 'fonnte';
+    await settings.setMany({
+      wa_provider: provider,
+      roki_base_url: (req.body.roki_base_url || '').trim(),
+      roki_token: (req.body.roki_token || '').trim(),
+      roki_target: (req.body.roki_target || '').trim(),
+      roki_enabled: req.body.roki_enabled ? '1' : '0'
+    });
+    res.redirect('/server-wa?saved=1');
+  } catch (e) {
+    res.redirect('/server-wa?error=' + encodeURIComponent(e.message));
+  }
+});
+
+// Kirim pesan uji ke provider terpilih (dipanggil via fetch dari halaman).
+router.post('/server-wa/test', async (req, res) => {
+  const target = (req.body && req.body.target || '').trim();
+  const provider = req.body && req.body.provider; // opsional: paksa provider tertentu
+  const message =
+    (req.body && req.body.message) ||
+    `TES NETRA — Server WA OTP\nWaktu: ${new Date().toLocaleString('id-ID')}`;
+  try {
+    const out = await sendWhatsapp(message, { subject: 'Tes Server WA', target: target || null, provider });
+    res.json({ ok: out.ok, provider: out.provider, error: out.error || null, response: out.response || null });
+  } catch (e) {
+    res.status(500).json({ ok: false, error: e.message });
+  }
 });
 
 // --- helpers ---

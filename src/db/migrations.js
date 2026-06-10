@@ -110,6 +110,17 @@ const TABLES = [
     `
   },
   {
+    name: 'app_settings',
+    sql: `
+      CREATE TABLE IF NOT EXISTS app_settings (
+        skey VARCHAR(64) NOT NULL,
+        svalue TEXT,
+        updated_at DATETIME DEFAULT NULL,
+        PRIMARY KEY (skey)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci
+    `
+  },
+  {
     name: 'notification_log',
     sql: `
       CREATE TABLE IF NOT EXISTS notification_log (

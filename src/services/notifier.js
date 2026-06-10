@@ -1,6 +1,6 @@
 'use strict';
 
-const { sendFonnte } = require('./fonnte');
+const { sendWhatsapp, isWaEnabled } = require('./whatsapp');
 const { sendTelegram } = require('./telegram');
 const config = require('../config');
 const logger = require('../logger');
@@ -48,7 +48,7 @@ async function notifyAll(subject, message, { key, force = false } = {}) {
 
   const fullMessage = subject ? `${subject}\n\n${message}` : message;
   const tasks = [];
-  if (config.fonnte.enabled) tasks.push(['fonnte', sendFonnte(fullMessage, { subject })]);
+  if (await isWaEnabled()) tasks.push(['wa', sendWhatsapp(fullMessage, { subject })]);
   if (config.telegram.enabled) tasks.push(['telegram', sendTelegram(fullMessage, { subject })]);
 
   if (tasks.length === 0) {

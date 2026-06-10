@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <%- include('partials/head', { title }) %>
+</head>
+<body>
+<div class="app">
+  <%- include('partials/sidebar', { page }) %>
+  <div class="main">
+    <%- include('partials/navbar', { title, navIcon: 'fa-brands fa-whatsapp' }) %>
+    <div class="content">
+
+      <% if (saved) { %>
+        <div class="alert alert--success">
+          <i class="fa-solid fa-circle-check"></i>
+          <div>Pengaturan tersimpan. Provider aktif sekarang:
+            <strong><%= wa.provider === 'roki' ? 'Roki WA Server' : 'Fonnte' %></strong>.</div>
+        </div>
+      <% } %>
+      <% if (error) { %>
+        <div class="alert alert--danger">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <div>Gagal menyimpan: <%= error %></div>
+        </div>
+      <% } %>
+
+      <div class="alert alert--info">
+        <i class="fa-solid fa-circle-info"></i>
+        <div>Pilih sumber pengiriman pesan WhatsApp (OTP &amp; notifikasi interface).
+          Perubahan berlaku langsung tanpa restart. Provider aktif saat ini:
+          <strong><%= wa.provider === 'roki' ? 'Roki WA Server' : 'Fonnte' %></strong>.</div>
+      </div>
+
+      <form method="POST" action="/server-wa">
+        <div class="grid-2">
+
+          <!-- ===== FONNTE ===== -->
+          <label class="card prov-card <%= wa.provider === 'fonnte' ? 'is-active' : '' %>" id="cardFonnte">
+            <div class="card__head">
+              <div>
+                <h3 style="margin:0;">
+                  <input type="radio" name="wa_provider" value="fonnte" <%= wa.provider === 'fonnte' ? 'checked' : '' %>>
+                  <i class="fa-solid fa-cloud text-accent"></i> Fonnte (Cloud)
+                </h3>
+                <div class="muted fs-sm" style="margin-top:4px;">Layanan WA gateway pihak ketiga</div>
+              </div>
+              <% if (wa.fonnte.configured && wa.fonnte.enabled) { %>
+                <span class="badge badge--success"><i class="fa-solid fa-check"></i> Siap</span>
+              <% } else { %>
+                <span class="badge badge--warning"><i class="fa-solid fa-ban"></i> Belum siap</span>
+              <% } %>
+            </div>
+            <div class="card__body">
+              <div class="field">
+                <label class="muted fs-sm">Target / Nomor</label>
+                <input class="input" type="text" value="<%= wa.fonnte.target || '-' %>" disabled>
+              </div>
+              <div class="field">
+                <label class="muted fs-sm">Token</label>
+                <input class="input" type="text" value="<%= wa.fonnte.token ? '••••••••' + wa.fonnte.token.slice(-4) : '(kosong)' %>" disabled>
+              </div>
+              <p class="muted fs-xs" style="margin:8px 0 0;">
+                <i class="fa-solid fa-lock"></i> Dikonfigurasi via <code>.env</code> (FONNTE_*). Read-only di sini.
+              </p>
+            </div>
+          </label>
+
+          <!-- ===== ROKI ===== -->
+          <label class="card prov-card <%= wa.provider === 'roki' ? 'is-active' : '' %>" id="cardRoki">
+            <div class="card__head">
+              <div>
+                <h3 style="margin:0;">
+                  <input type="radio" name="wa_provider" value="roki" <%= wa.provider === 'roki' ? 'checked' : '' %>>
+                  <i class="fa-brands fa-whatsapp" style="color:#25D366;"></i> Roki WA Server
+                </h3>
+                <div class="muted fs-sm" style="margin-top:4px;">Gateway self-hosted (alternatif Fonnte)</div>
+              </div>
+              <% if (wa.roki.configured && wa.roki.enabled) { %>
+                <span class="badge badge--success"><i class="fa-solid fa-check"></i> Siap</span>
+              <% } else { %>
+                <span class="badge badge--warning"><i class="fa-solid fa-ban"></i> Belum siap</span>
+              <% } %>
+            </div>
+            <div class="card__body">
+              <div class="field">
+                <label class="muted fs-sm">Base URL</label>
+                <input class="input" type="text" name="roki_base_url" placeholder="http://localhost:5001"
+                       value="<%= wa.roki.baseUrl %>">
+              </div>
+              <div class="field">
+                <label class="muted fs-sm">Token Device</label>
+                <input class="input" type="text" name="roki_token" placeholder="token dari dashboard Roki"
+                       value="<%= wa.roki.token %>">
+              </div>
+              <div class="field">
+                <label class="muted fs-sm">Target / Nomor</label>
+                <input class="input" type="text" name="roki_target" placeholder="08xxxxxxxxxx"
+                       value="<%= wa.roki.target %>">
+              </div>
+              <div class="field">
+                <label class="check">
+                  <input type="checkbox" name="roki_enabled" value="1" <%= wa.roki.enabled ? 'checked' : '' %>>
+                  Aktifkan server Roki
+                </label>
+              </div>
+            </div>
+          </label>
+
+        </div>
+
+        <div class="actions">
+          <button type="submit" class="btn btn--primary"><i class="fa-solid fa-floppy-disk"></i> Simpan Pengaturan</button>
+        </div>
+      </form>
+
+      <!-- ===== TES KIRIM ===== -->
+      <div class="card" style="margin-top: var(--space-6);">
+        <div class="card__head">
+          <div>
+            <h3 style="margin:0;"><i class="fa-solid fa-paper-plane text-accent"></i> Tes Kirim Pesan</h3>
+            <div class="muted fs-sm" style="margin-top:4px;">Mengirim lewat provider yang dipilih di atas (gunakan target kosong untuk nomor default).</div>
+          </div>
+        </div>
+        <div class="card__body">
+          <div class="test-row">
+            <input class="input" id="testTarget" type="text" placeholder="Nomor tujuan (opsional, mis. 0812xxxx)">
+            <select class="select" id="testProvider">
+              <option value="">Provider aktif</option>
+              <option value="fonnte">Paksa: Fonnte</option>
+              <option value="roki">Paksa: Roki</option>
+            </select>
+            <button class="btn btn--primary" id="btnTest" type="button"><i class="fa-solid fa-paper-plane"></i> Kirim Tes</button>
+          </div>
+          <div id="testResult" style="margin-top: var(--space-4);"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<style>
+  .prov-card { cursor: pointer; display: block; }
+  .prov-card.is-active { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .field { margin-bottom: var(--space-4); }
+  .field > label { display: block; margin-bottom: 4px; }
+  .field .input { width: 100%; box-sizing: border-box; }
+  .check { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+  .actions { margin-top: var(--space-5); }
+  .test-row { display: flex; gap: var(--space-3); flex-wrap: wrap; align-items: center; }
+  .test-row .input { flex: 1 1 240px; }
+</style>
+
+<script>
+  (function () {
+    // Sorot kartu provider yang dipilih.
+    var radios = document.querySelectorAll('input[name="wa_provider"]');
+    function sync() {
+      document.getElementById('cardFonnte').classList.toggle('is-active', document.querySelector('input[name="wa_provider"][value="fonnte"]').checked);
+      document.getElementById('cardRoki').classList.toggle('is-active', document.querySelector('input[name="wa_provider"][value="roki"]').checked);
+    }
+    radios.forEach(function (r) { r.addEventListener('change', sync); });
+
+    // Tes kirim.
+    var btn = document.getElementById('btnTest');
+    var out = document.getElementById('testResult');
+    btn.addEventListener('click', function () {
+      btn.disabled = true;
+      out.innerHTML = '<div class="alert alert--info"><i class="fa-solid fa-spinner fa-spin"></i><div>Mengirim…</div></div>';
+      fetch('/server-wa/test', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          target: document.getElementById('testTarget').value,
+          provider: document.getElementById('testProvider').value || undefined
+        })
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          if (d.ok) {
+            out.innerHTML = '<div class="alert alert--success"><i class="fa-solid fa-circle-check"></i><div>Terkirim via <strong>' + (d.provider || '-') + '</strong>.</div></div>';
+          } else {
+            out.innerHTML = '<div class="alert alert--danger"><i class="fa-solid fa-triangle-exclamation"></i><div>Gagal (' + (d.provider || '-') + '): ' + (d.error || 'tidak diketahui') + '</div></div>';
+          }
+        })
+        .catch(function (e) {
+          out.innerHTML = '<div class="alert alert--danger"><i class="fa-solid fa-triangle-exclamation"></i><div>Error: ' + e.message + '</div></div>';
+        })
+        .finally(function () { btn.disabled = false; });
+    });
+  })();
+</script>
+</body>
+</html>
