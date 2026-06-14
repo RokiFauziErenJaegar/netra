@@ -1,0 +1,52 @@
+{
+  "waktu": "2026-06-14 14:04:39",
+  "mode": "dry-run",
+  "provider": "roki",
+  "target": "082282439298",
+  "total": 5,
+  "lulus": 5,
+  "gagal": 0,
+  "results": [
+    {
+      "tc": "TC-01",
+      "judul": "Baseline — interface normal (Up)",
+      "harapan": "Status terhitung = Up, TIDAK ada notifikasi",
+      "aktual": "status=Up, aksi=tidak ada notifikasi",
+      "status": "LULUS",
+      "detail": "(dry-run: tidak dikirim)"
+    },
+    {
+      "tc": "TC-02",
+      "judul": "Deteksi pemutusan koneksi (Up → Down)",
+      "harapan": "Status terhitung = Down, terkirim notif \"TIDAK TERHUBUNG\"",
+      "aktual": "status=Down, aksi=notif TIDAK TERHUBUNG",
+      "status": "LULUS",
+      "detail": "(dry-run: tidak dikirim)"
+    },
+    {
+      "tc": "TC-03",
+      "judul": "Anti-spam — Down berlanjut (cooldown)",
+      "harapan": "Tidak ada transisi baru; notifikasi ulang DITAHAN cooldown",
+      "aktual": "aksi=tidak ada notifikasi, (dry-run: tidak dikirim)",
+      "status": "LULUS",
+      "detail": "Cooldown = 300000 ms"
+    },
+    {
+      "tc": "TC-04",
+      "judul": "Deteksi pemulihan (Down → Up)",
+      "harapan": "Status terhitung = Up, terkirim notif \"PULIH (UP)\"",
+      "aktual": "status=Up, aksi=notif PULIH (UP)",
+      "status": "LULUS",
+      "detail": "(dry-run: tidak dikirim)"
+    },
+    {
+      "tc": "TC-05",
+      "judul": "Deteksi interface di-disable (admin down)",
+      "harapan": "Status terhitung = Down, terkirim notif \"TERDISABLE\"",
+      "aktual": "status=Down, aksi=notif TERDISABLE",
+      "status": "LULUS",
+      "detail": "(dry-run: tidak dikirim)"
+    }
+  ],
+  "evidence": []
+}

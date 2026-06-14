@@ -1,0 +1,80 @@
+{
+  "waktu": "2026-06-14 14:05:07",
+  "mode": "live",
+  "provider": "roki",
+  "target": "082282439298",
+  "total": 5,
+  "lulus": 5,
+  "gagal": 0,
+  "results": [
+    {
+      "tc": "TC-01",
+      "judul": "Baseline — interface normal (Up)",
+      "harapan": "Status terhitung = Up, TIDAK ada notifikasi",
+      "aktual": "status=Up, aksi=tidak ada notifikasi",
+      "status": "LULUS",
+      "detail": "tidak ada panggilan notif"
+    },
+    {
+      "tc": "TC-02",
+      "judul": "Deteksi pemutusan koneksi (Up → Down)",
+      "harapan": "Status terhitung = Down, terkirim notif \"TIDAK TERHUBUNG\"",
+      "aktual": "status=Down, aksi=notif TIDAK TERHUBUNG",
+      "status": "LULUS",
+      "detail": "dikirim via roki -> BERHASIL | anyOk=true"
+    },
+    {
+      "tc": "TC-03",
+      "judul": "Anti-spam — Down berlanjut (cooldown)",
+      "harapan": "Tidak ada transisi baru; notifikasi ulang DITAHAN cooldown",
+      "aktual": "aksi=tidak ada notifikasi, tidak ada panggilan notif",
+      "status": "LULUS",
+      "detail": "Cooldown = 300000 ms"
+    },
+    {
+      "tc": "TC-04",
+      "judul": "Deteksi pemulihan (Down → Up)",
+      "harapan": "Status terhitung = Up, terkirim notif \"PULIH (UP)\"",
+      "aktual": "status=Up, aksi=notif PULIH (UP)",
+      "status": "LULUS",
+      "detail": "dikirim via roki -> BERHASIL | anyOk=true"
+    },
+    {
+      "tc": "TC-05",
+      "judul": "Deteksi interface di-disable (admin down)",
+      "harapan": "Status terhitung = Down, terkirim notif \"TERDISABLE\"",
+      "aktual": "status=Down, aksi=notif TERDISABLE",
+      "status": "LULUS",
+      "detail": "dikirim via roki -> BERHASIL | anyOk=true"
+    }
+  ],
+  "evidence": [
+    {
+      "id": 99,
+      "channel": "roki",
+      "target": "082282439298",
+      "subject": "PERINGATAN INTERFACE DISKOMINFO",
+      "success": 1,
+      "error_message": null,
+      "created_at": "2026-06-14 14:05:05"
+    },
+    {
+      "id": 100,
+      "channel": "roki",
+      "target": "082282439298",
+      "subject": "PEMULIHAN INTERFACE DISKOMINFO",
+      "success": 1,
+      "error_message": null,
+      "created_at": "2026-06-14 14:05:05"
+    },
+    {
+      "id": 101,
+      "channel": "roki",
+      "target": "082282439298",
+      "subject": "PERINGATAN INTERFACE DISKOMINFO",
+      "success": 1,
+      "error_message": null,
+      "created_at": "2026-06-14 14:05:07"
+    }
+  ]
+}
